@@ -122,16 +122,25 @@ ob_start();
 
                 <!-- Type -->
                 <div class="form-group">
-                    <label for="network">Type</label>
+                    <label for="network">Interface Type</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                         </div>
                         <select class="form-control select2" name="type">
                             <option value="">- Select Type -</option>
-                            <?php foreach($interface_types_array as $interface_type_select) { ?>
+                            <?php
+                            $sql_interface_types_select = mysqli_query($mysqli, "
+                                SELECT category_name FROM categories
+                                WHERE category_type = 'network_interface'
+                                AND category_archived_at IS NULL
+                                ORDER BY category_order ASC, category_name ASC
+                            ");
+                            while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
+                                $interface_type_select = nullable_htmlentities($row['category_name']);
+                                ?>
                                 <option <?php if($interface_type == $interface_type_select) { echo "selected"; } ?>>
-                                    <?php echo $interface_type_select; ?>
+                                    <?= $interface_type_select ?>
                                 </option>
                             <?php } ?>
                         </select>
@@ -142,95 +151,6 @@ ob_start();
 
             <!-- Network Section -->
             <div class="tab-pane fade" id="pills-interface-network<?php echo $interface_id; ?>">
-
-                <!-- MAC Address -->
-                <div class="form-group">
-                    <label>MAC Address</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="mac"
-                            placeholder="MAC Address"
-                            maxlength="200"
-                            value="<?php echo $interface_mac; ?>"
-                            data-inputmask="'alias': 'mac'"
-                            data-mask
-                        >
-                    </div>
-                </div>
-
-                <!-- IPv4 or DHCP -->
-                <div class="form-group">
-                    <label>IPv4 or DHCP</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="ip"
-                            placeholder="IP Address"
-                            maxlength="200"
-                            value="<?php echo $interface_ip; ?>"
-                            data-inputmask="'alias': 'ip'"
-                            data-mask
-                        >
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <input
-                                    type="checkbox"
-                                    name="dhcp"
-                                    value="1"
-                                    title="Check to mark address as DHCP controlled"
-                                    <?php if ($interface_ip === 'DHCP') echo "checked"; ?>
-                                >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- NAT IP -->
-                <div class="form-group">
-                    <label>NAT IP</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="nat_ip"
-                            placeholder="Nat IP"
-                            maxlength="200"
-                            value="<?php echo $interface_nat_ip; ?>"
-                            data-inputmask="'alias': 'ip'"
-                            data-mask
-                        >
-                    </div>
-                </div>
-
-                <!-- IPv6 -->
-                <div class="form-group">
-                    <label>IPv6</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="ipv6"
-                            placeholder="IPv6 Address"
-                            maxlength="200"
-                            value="<?php echo $interface_ipv6; ?>"
-                        >
-                    </div>
-                </div>
 
                 <!-- Network -->
                 <div class="form-group">
@@ -262,12 +182,101 @@ ob_start();
                     </div>
                 </div>
 
+                <!-- IPv4 or DHCP -->
+                <div class="form-group">
+                    <label>IPv4 Address / <span class="text-muted">DHCP</span></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="ip"
+                            placeholder="e.g. 192.168.1.10"
+                            maxlength="200"
+                            value="<?php echo $interface_ip; ?>"
+                            data-inputmask="'alias': 'ip'"
+                            data-mask
+                        >
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <input
+                                    type="checkbox"
+                                    name="dhcp"
+                                    value="1"
+                                    title="Check to mark address as DHCP controlled"
+                                    <?php if ($interface_ip === 'DHCP') echo "checked"; ?>
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAC Address -->
+                <div class="form-group">
+                    <label>MAC Address</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="mac"
+                            placeholder="e.g. 00:1A:2B:3C:4D:5E"
+                            maxlength="200"
+                            value="<?php echo $interface_mac; ?>"
+                            data-inputmask="'alias': 'mac'"
+                            data-mask
+                        >
+                    </div>
+                </div>
+
+                <!-- IPv6 -->
+                <div class="form-group">
+                    <label>IPv6 Address</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="ipv6"
+                            placeholder="e.g. 2001:db8::1"
+                            maxlength="200"
+                            value="<?php echo $interface_ipv6; ?>"
+                        >
+                    </div>
+                </div>
+
+                <!-- NAT IP -->
+                <div class="form-group">
+                    <label>NAT Address</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="nat_ip"
+                            placeholder="e.g. 203.0.113.10 or 10.0.0.5"
+                            maxlength="200"
+                            value="<?php echo $interface_nat_ip; ?>"
+                            data-inputmask="'alias': 'ip'"
+                            data-mask
+                        >
+                    </div>
+                </div>
+
                 <!-- Connected to (One-to-One) -->
                 <div class="form-group">
                     <label>Connected to</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                         </div>
                         <select class="form-control select2" name="connected_to">
                             <option value="">- Select Asset and Interface -</option>

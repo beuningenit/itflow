@@ -213,7 +213,7 @@ $sql_asset_retired = mysqli_query(
     <div class="col-md-8">
 
         <div class="card card-dark mb-3">
-            <div class="card-header">
+            <div class="card-header p-2">
                 <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Quick Notes</h5>
             </div>
             <div class="card-body p-1">
@@ -226,10 +226,10 @@ $sql_asset_retired = mysqli_query(
 
         <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
         <div class="card card-dark mb-3">
-            <div class="card-header">
+            <div class="card-header p-2">
                 <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
             </div>
-            <div class="card-body p-2">
+            <div class="card-body p-1">
                 <table class="table table-borderless table-sm">
                     <?php
 
@@ -311,36 +311,38 @@ $sql_asset_retired = mysqli_query(
     <div class="col-md-4">
 
         <div class="card card-dark mb-3">
-            <div class="card-header">
+            <div class="card-header p-2">
                 <h5 class="card-title"><i class="fas fa-fw fa-star mr-2"></i>Favorite Assets</h5>
             </div>
-            <div class="card-body p-2">
-                <table class="table table-borderless table-sm">
-                    <?php
+            <table class="table table-sm table-hover mb-0">
+                <?php
 
-                    while ($row = mysqli_fetch_assoc($sql_favorite_assets)) {
-                        $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $asset_type = nullable_htmlentities($row['asset_type']);
-                        $asset_icon = getAssetIcon($asset_type);
+                while ($row = mysqli_fetch_assoc($sql_favorite_assets)) {
+                    $asset_id = intval($row['asset_id']);
+                    $asset_name = nullable_htmlentities($row['asset_name']);
+                    $asset_type = nullable_htmlentities($row['asset_type']);
+                    $asset_icon = getAssetIcon($asset_type);
+                    $asset_make = nullable_htmlentities($row['asset_make']);
+                    $asset_model = nullable_htmlentities($row['asset_model']);
 
-                        ?>
-                        <tr>
-                            <td>
-                                <a href="#" class="ajax-modal"
-                                    data-modal-size="lg"
-                                    data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
-                                        <i class="fas fa-fw fa-<?= $asset_icon ?> text-muted mr-2"></i><?= $asset_name ?>
-                                </a>
-
-                            </td>
-                        </tr>
-                        <?php
-                    }
                     ?>
+                    <tr>
+                        <td>
+                            <a href="#" class="ajax-modal"
+                                data-modal-size="lg"
+                                data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                                    <i class="fas fa-fw fa-<?= $asset_icon ?> text-dark mr-1"></i><?= $asset_name ?>
+                            </a>
+                        </td>
+                        <td>
+                            <div><?= "$asset_make $asset_model"; ?></div>
+                        </td>
+                    </tr>
+                    <?php
+                }
+                ?>
 
-                </table>
-            </div>
+            </table>
         </div>
 
     </div>
@@ -352,59 +354,59 @@ $sql_asset_retired = mysqli_query(
     <div class="col-md-4">
 
         <div class="card card-dark mb-3">
-            <div class="card-header">
+            <div class="card-header p-2">
                 <h5 class="card-title"><i class="fas fa-fw fa-star mr-2"></i>Favorite Credentials</h5>
             </div>
-            <div class="card-body p-2">
-                <table class="table table-borderless table-sm">
-                    <?php
 
-                    while ($row = mysqli_fetch_assoc($sql_favorite_credentials)) {
-                        $credential_id = intval($row['credential_id']);
-                        $credential_name = nullable_htmlentities($row['credential_name']);
-                        $credential_description = nullable_htmlentities($row['credential_description']);
-                        $credential_uri = sanitize_url($row['credential_uri']);
-                        if (empty($credential_uri)) {
-                            $credential_uri_display = "-";
-                        } else {
-                            $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
-                        }
-                        $credential_uri_2 = sanitize_url($row['credential_uri_2']);
-                        $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
-                        if (empty($credential_username)) {
-                            $credential_username_display = "-";
-                        } else {
-                            $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
-                        }
-                        $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
-                        $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
-                        $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
-                        if (empty($credential_otp_secret)) {
-                            $otp_display = "-";
-                        } else {
-                            $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
-                        }
+            <table class="table table-sm table-hover mb-0">
+                <?php
 
-                        ?>
-                        <tr>
-                            <td>
-                                <a href="#" class="ajax-modal"
-                                    data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
-                                        <i class="fas fa-fw fa-key text-muted mr-2"></i><?= $credential_name ?>
-                                </a>
-                            </td>
-                            <td><?= $credential_username_display ?></td>
-                            <td class="text-nowrap">
-                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" type="button" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
-                            </td>
-                            <td><?= $otp_display ?></td>
-                        </tr>
-                        <?php
+                while ($row = mysqli_fetch_assoc($sql_favorite_credentials)) {
+                    $credential_id = intval($row['credential_id']);
+                    $credential_name = nullable_htmlentities($row['credential_name']);
+                    $credential_description = nullable_htmlentities($row['credential_description']);
+                    $credential_uri = sanitize_url($row['credential_uri']);
+                    if (empty($credential_uri)) {
+                        $credential_uri_display = "-";
+                    } else {
+                        $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
                     }
-                    ?>
+                    $credential_uri_2 = sanitize_url($row['credential_uri_2']);
+                    $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                    if (empty($credential_username)) {
+                        $credential_username_display = "-";
+                    } else {
+                        $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                    }
+                    $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
+                    $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                    $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
+                    if (empty($credential_otp_secret)) {
+                        $otp_display = "";
+                    } else {
+                        $otp_display = "<small class='text-secondary'><span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock text-dark'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span><small>";
+                    }
 
-                </table>
-            </div>
+                    ?>
+                    <tr>
+                        <td>
+                            <a href="#" class="ajax-modal"
+                                data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
+                                    <i class="fas fa-fw fa-key text-dark mr-1"></i><?= $credential_name ?>
+                            </a>
+                        </td>
+                        <td><?= $credential_username_display ?></td>
+                        <td class="text-nowrap">
+                            <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" type="button" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                            <div><?= $otp_display ?></div>
+                        </td>
+
+                    </tr>
+                    <?php
+                }
+                ?>
+
+            </table>
         </div>
 
     </div>
@@ -416,7 +418,7 @@ $sql_asset_retired = mysqli_query(
         <div class="col-md-4">
 
             <div class="card card-dark mb-3">
-                <div class="card-header">
+                <div class="card-header p-2">
                     <h5 class="card-title"><i class="fa fa-fw fa-share-square mr-2"></i>Shared Items</h5>
                 </div>
                 <div class="card-body p-2">
@@ -493,7 +495,7 @@ $sql_asset_retired = mysqli_query(
         <div class="col-md-4">
 
             <div class="card card-dark mb-3">
-                <div class="card-header">
+                <div class="card-header p-2">
                     <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Expiring in the Next 45 Days</h5>
                 </div>
                 <div class="card-body p-2">
@@ -611,7 +613,7 @@ $sql_asset_retired = mysqli_query(
         <div class="col-md-4">
 
             <div class="card card-dark mb-3">
-                <div class="card-header">
+                <div class="card-header p-2">
                     <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-danger mr-2"></i>Expired</h5>
                 </div>
                 <div class="card-body p-2">
@@ -723,37 +725,34 @@ $sql_asset_retired = mysqli_query(
         <div class="col-md-4">
 
             <div class="card card-dark mb-3">
-                <div class="card-header">
+                <div class="card-header p-2">
                     <h5 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Stale Tickets <small>(Not updated within 3 days)</small></h5>
                 </div>
-                <div class="card-body p-2">
+                <table class="table table table-sm table-hover mb-0">
+                    <tbody>
+                    <?php
 
-                    <table class="table table-borderless table-sm">
-                        <tbody>
-                        <?php
+                    while ($row = mysqli_fetch_assoc($sql_stale_tickets)) {
+                        $ticket_id = intval($row['ticket_id']);
+                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_number = intval($row['ticket_number']);
+                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                        $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                        $ticket_created_at_human = timeAgo($row['ticket_created_at']);
 
-                        while ($row = mysqli_fetch_assoc($sql_stale_tickets)) {
-                            $ticket_id = intval($row['ticket_id']);
-                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                            $ticket_number = intval($row['ticket_number']);
-                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                            $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                            $ticket_created_at_human = timeAgo($row['ticket_created_at']);
-
-                            ?>
-                            <tr>
-                                <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
-                                <td><?php echo $ticket_subject; ?></td>
-                                <td><?php echo $ticket_created_at_human; ?> <small class="text-muted"><?php echo $ticket_created_at; ?></small></td>
-                            </tr>
-
-                            <?php
-                        }
                         ?>
+                        <tr>
+                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
+                            <td><?php echo $ticket_subject; ?></td>
+                            <td><?php echo $ticket_created_at_human; ?> <small class="text-muted"><?php echo $ticket_created_at; ?></small></td>
+                        </tr>
 
-                        </tbody>
-                    </table>
-                </div>
+                        <?php
+                    }
+                    ?>
+
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -766,34 +765,31 @@ $sql_asset_retired = mysqli_query(
         <div class="col-md-6">
 
             <div class="card card-dark mb-3">
-                <div class="card-header">
+                <div class="card-header p-2">
                     <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities <small>(Last 10 tasks)</small></h5>
                 </div>
-                <div class="card-body p-2">
+                <table class="table table-sm table-hover mb-0">
+                    <tbody>
+                    <?php
 
-                    <table class="table table-borderless table-sm">
-                        <tbody>
-                        <?php
+                    while ($row = mysqli_fetch_assoc($sql_recent_activities)) {
+                        $log_created_at_time_ago = timeAgo($row['log_created_at']);
+                        $log_description = nullable_htmlentities($row['log_description']);
 
-                        while ($row = mysqli_fetch_assoc($sql_recent_activities)) {
-                            $log_created_at_time_ago = timeAgo($row['log_created_at']);
-                            $log_description = nullable_htmlentities($row['log_description']);
-
-                            ?>
-                            <tr>
-                                <td class="text-nowrap text-secondary"><?php echo $log_created_at_time_ago; ?></td>
-                                <td><?php echo $log_description; ?></td>
-                            </tr>
-
-                            <?php
-                        }
                         ?>
+                        <tr>
+                            <td class="text-nowrap text-secondary"><?php echo $log_created_at_time_ago; ?></td>
+                            <td><?php echo $log_description; ?></td>
+                        </tr>
 
-                        </tbody>
-                    </table>
-                </div>
+                        <?php
+                    }
+                    ?>
+
+                    </tbody>
+                </table>
                 <?php if ($session_user_role == 3) { ?>
-                <div class="card-footer">
+                <div class="card-footer p-2">
                     <a href="../admin/audit_log.php?client=<?php echo $client_id; ?>">See More...</a>
                 </div>
                 <?php } ?>
@@ -816,6 +812,7 @@ $sql_asset_retired = mysqli_query(
             "ajax.php",
             {
                 client_set_notes: 'TRUE',
+                csrf_token: '<?= $_SESSION['csrf_token'] ?>',
                 client_id: client_id,
                 notes: notes
             }

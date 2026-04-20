@@ -9,4 +9,3 @@ $expire = sanitizeInput($_POST['expire']);
 $public_key = sanitizeInput($_POST['public_key']);
 $notes = sanitizeInput($_POST['notes']);
 $domain_id = intval($_POST['domain_id'] ?? 0);
-$client_id = intval($_POST['client_id']);

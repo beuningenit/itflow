@@ -30,7 +30,9 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="type" value="<?php echo $type; ?>">
+
     <div class="modal-body">
         <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
@@ -41,13 +43,13 @@ ob_start();
                 <input type="text" class="form-control" name="name" placeholder="Tag name" maxlength="200" required autofocus>
             </div>
         </div>
-        
+
         <?php if (isset($_GET['type'])) { ?>
-        
+
         <input type="hidden" name="type" value="<?= $type ?>">
-        
+
         <?php } else { ?>
-        
+
         <div class="form-group">
             <label>Type <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -64,7 +66,7 @@ ob_start();
                 </select>
             </div>
         </div>
-    
+
         <?php } ?>
 
         <div class="form-group">

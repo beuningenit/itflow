@@ -27,9 +27,7 @@ if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
 
     <div class="col-md-6">
         <form action="post.php" method="post">
-            <!-- Prevent undefined checkbox errors on submit -->
-            <input type="hidden" name="contact_billing" value="0">
-            <input type="hidden" name="contact_technical" value="0">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>

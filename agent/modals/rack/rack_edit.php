@@ -31,9 +31,8 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="rack_id" value="<?php echo $rack_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
     <div class="modal-body">
 
@@ -53,6 +52,32 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-rack-details<?php echo $rack_id; ?>">
 
                 <div class="form-group">
+                    <label>Type <strong class="text-danger">*</strong></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                        </div>
+                        <select class="form-control select2" name="type" required>
+                            <option value="">- Type -</option>
+                            <?php
+                            $sql_rack_types_select = mysqli_query($mysqli, "
+                                SELECT category_name FROM categories
+                                WHERE category_type = 'rack_type'
+                                AND category_archived_at IS NULL
+                                ORDER BY category_order ASC, category_name ASC
+                            ");
+                            while ($row = mysqli_fetch_assoc($sql_rack_types_select)) {
+                                $rack_type_select = nullable_htmlentities($row['category_name']);
+                                ?>
+                                <option <?php if ($rack_type == $rack_type_select) { echo "selected"; } ?>>
+                                    <?= $rack_type_select ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -63,27 +88,12 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>Description</label>
+                    <label>Number of Units <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the rack" value="<?php echo $rack_description; ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Type <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
-                        <select class="form-control select2" name="type" required>
-                            <option value="">- Type -</option>
-                            <?php foreach($rack_type_select_array as $rack_type_select) { ?>
-                                <option <?php if ($rack_type == $rack_type_select) { echo "selected"; } ?>><?php echo $rack_type_select; ?></option>
-                            <?php } ?>
-                        </select>
+                        <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="70" value="<?php echo $rack_units; ?>" required>
                     </div>
                 </div>
 
@@ -108,26 +118,6 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>Number of Units <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
-                        </div>
-                        <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="70" value="<?php echo $rack_units; ?>" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Physical Location</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?php echo $rack_physical_location; ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label>Location</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -146,6 +136,26 @@ ob_start();
                             <?php } ?>
 
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Physical Location</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?php echo $rack_physical_location; ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="description" placeholder="Description of the rack" value="<?php echo $rack_description; ?>">
                     </div>
                 </div>
 

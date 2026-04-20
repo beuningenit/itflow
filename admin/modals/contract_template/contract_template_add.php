@@ -30,6 +30,8 @@ ob_start();
 </ul>
 
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
     <div class="modal-body">
         <div class="tab-content" id="contractTemplateTabContent">
 

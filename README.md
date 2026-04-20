@@ -82,7 +82,7 @@ We track the implementation of confirmed features and bugs via [TaskFlow](https:
 For help using ITFlow, bugs, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
 
 ### Contributing
-If you want to improve ITFlow, feel free to fork the repo and create a pull reques. Make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our [code standards](https://docs.itflow.org/code_standards). See the [contributing guide](https://docs.itflow.org/contribute).
+We have temporarily paused PRs from the community.
 
 #### Contributors
 <a href="https://github.com/itflow-org/itflow/graphs/contributors">

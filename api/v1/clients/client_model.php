@@ -5,7 +5,7 @@
 if (isset($_POST['client_name'])) {
     $name = sanitizeInput($_POST['client_name']);
 } elseif ($client_row) {
-    $name = $client_row['client_name'];
+    $name = mysqli_real_escape_string($mysqli, $client_row['client_name']);
 } else {
     $name = '';
 }
@@ -13,7 +13,7 @@ if (isset($_POST['client_name'])) {
 if (isset($_POST['client_type'])) {
     $type = sanitizeInput($_POST['client_type']);
 } elseif ($client_row) {
-    $type = $client_row['client_type'];
+    $type = mysqli_real_escape_string($mysqli, $client_row['client_type']);
 } else {
     $type = '';
 }
@@ -21,7 +21,7 @@ if (isset($_POST['client_type'])) {
 if (isset($_POST['client_website'])) {
     $website = preg_replace("(^https?://)", "", sanitizeInput($_POST['client_website']));
 } elseif ($client_row) {
-    $website = $client_row['client_website'];
+    $website = mysqli_real_escape_string($mysqli, $client_row['client_website']);
 } else {
     $website = '';
 }
@@ -29,7 +29,7 @@ if (isset($_POST['client_website'])) {
 if (isset($_POST['client_referral'])) {
     $referral = sanitizeInput($_POST['client_referral']);
 } elseif ($client_row) {
-    $referral = $client_row['client_referral'];
+    $referral = mysqli_real_escape_string($mysqli, $client_row['client_referral']);
 } else {
     $referral = '';
 }
@@ -45,7 +45,7 @@ if (isset($_POST['client_rate'])) {
 if (isset($_POST['client_currency_code'])) {
     $currency_code = sanitizeInput($_POST['client_currency_code']);
 } elseif ($client_row) {
-    $currency_code = $client_row['client_currency_code'];
+    $currency_code = mysqli_real_escape_string($mysqli, $client_row['client_currency_code']);
 } else {
     $currency_code = '';
 }
@@ -61,7 +61,7 @@ if (isset($_POST['client_net_terms'])) {
 if (isset($_POST['client_tax_id_number'])) {
     $tax_id_number = sanitizeInput($_POST['client_tax_id_number']);
 } elseif ($client_row) {
-    $tax_id_number = $client_row['client_tax_id_number'];
+    $tax_id_number = mysqli_real_escape_string($mysqli, $client_row['client_tax_id_number']);
 } else {
     $tax_id_number = '';
 }
@@ -69,7 +69,7 @@ if (isset($_POST['client_tax_id_number'])) {
 if (isset($_POST['client_abbreviation'])) {
     $abbreviation = sanitizeInput(substr($_POST['client_abbreviation'], 0, 6));
 } elseif ($client_row) {
-    $abbreviation = $client_row['client_abbreviation'];
+    $abbreviation = mysqli_real_escape_string($mysqli, $client_row['client_abbreviation']);
 } else {
     $abbreviation = '';
 }
@@ -85,7 +85,7 @@ if (isset($_POST['client_is_lead'])) {
 if (isset($_POST['client_notes'])) {
     $notes = sanitizeInput($_POST['client_notes']);
 } elseif ($client_row) {
-    $notes = $client_row['client_notes'];
+    $notes = mysqli_real_escape_string($mysqli, $client_row['client_notes']);
 } else {
     $notes = '';
 }

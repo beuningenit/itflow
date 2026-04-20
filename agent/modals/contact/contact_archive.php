@@ -8,6 +8,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
                 <div class="modal-body">
 
@@ -23,7 +24,7 @@
                             <label class="custom-control-label" for="unassignAssetsCheckbox<?php echo $contact_id; ?>">Assets</label>
                         </div>
                     </div>
-                
+
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="unassignLicensesCheckbox<?php echo $contact_id; ?>" name="unassign_licenses" value="1">
@@ -44,7 +45,7 @@
                             <label class="custom-control-label" for="anonymizeCheckbox<?php echo $contact_id; ?>">Anonymize Contact</label>
                         </div>
                     </div>
-                
+
                 </div>
                 <div class="modal-footer">
                     <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check mr-2"></i>Arhive</button>

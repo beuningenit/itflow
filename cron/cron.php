@@ -490,7 +490,7 @@ if ($config_send_invoice_reminders == 1) {
 
     // PAST DUE INVOICE Notifications
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
-    $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620,650,680,710,740];
+    $invoiceAlertArray = [1,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620,650,680,710,740];
 
     foreach ($invoiceAlertArray as $day) {
 
@@ -524,7 +524,7 @@ if ($config_send_invoice_reminders == 1) {
 
             // Late Charges
 
-            if ($config_invoice_late_fee_enable == 1) {
+            if ($config_invoice_late_fee_enable == 1 && $day > 1) {
 
                 $todays_date = date('Y-m-d');
                 $late_fee_amount = ($invoice_amount * $config_invoice_late_fee_percent) / 100;
@@ -628,7 +628,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
     $new_invoice_id = mysqli_insert_id($mysqli);
 
     //Copy Items from original recurring invoice to new invoice
-    $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
 
     while ($row = mysqli_fetch_assoc($sql_invoice_items)) {
         $item_id = intval($row['item_id']);

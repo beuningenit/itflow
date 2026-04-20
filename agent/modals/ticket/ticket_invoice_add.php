@@ -54,6 +54,8 @@ if ($ticket_assigned_to) {
     $ticket_assigned_agent = '';
 }
 
+$ticket_quote_id = intval($row['ticket_quote_id']);
+
 $contact_id = intval($row['contact_id']);
 $contact_name = nullable_htmlentities($row['contact_name']);
 
@@ -88,8 +90,15 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
     <div class="modal-body">
+        <?php if ($ticket_quote_id > 0) { ?>
+            <div class="alert alert-warning" role="alert">
+                <a href="quote.php?quote_id=<?=$ticket_quote_id?>">View quote?</a>
+            </div>
+        <?php } ?>
+
         <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
 
         <ul class="nav nav-pills nav-justified mb-3">

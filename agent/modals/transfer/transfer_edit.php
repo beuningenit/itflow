@@ -33,6 +33,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="transfer_id" value="<?php echo $transfer_id; ?>">
     <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
     <input type="hidden" name="revenue_id" value="<?php echo $revenue_id; ?>">

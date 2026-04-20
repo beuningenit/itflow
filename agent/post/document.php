@@ -8,12 +8,16 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     require_once 'document_model.php';
-
+    $client_id = intval($_POST['client_id']);
     $contact_id = intval($_POST['contact'] ?? 0);
     $asset_id = intval($_POST['asset'] ?? 0);
+
+    enforceClientAccess();
 
     // Document add query
     mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '', document_content_raw = '$content_raw', document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
@@ -51,6 +55,8 @@ if (isset($_POST['add_document'])) {
 
 if (isset($_POST['add_document_from_template'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $client_id             = intval($_POST['client_id']);
@@ -58,6 +64,8 @@ if (isset($_POST['add_document_from_template'])) {
     $document_description  = sanitizeInput($_POST['description']);
     $document_template_id  = intval($_POST['document_template_id']);
     $folder                = intval($_POST['folder']);
+
+    enforceClientAccess();
 
     // Get template
     $sql_document = mysqli_query(
@@ -131,11 +139,17 @@ if (isset($_POST['add_document_from_template'])) {
 
 if (isset($_POST['edit_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     require_once 'document_model.php';
 
     $document_id = intval($_POST['document_id']);
+
+    $client_id = intval(getFieldById('documents', $document_id, 'document_client_id'));
+
+    enforceClientAccess();
 
     // 1) Load the current document to create a version
     $sql_original_document = mysqli_query(
@@ -230,6 +244,8 @@ if (isset($_POST['edit_document'])) {
 
 if (isset($_POST['move_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
@@ -240,6 +256,8 @@ if (isset($_POST['move_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Folder Name for logging
     $sql_folder = mysqli_query($mysqli,"SELECT folder_name FROM folders WHERE folder_id = $folder_id");
@@ -259,11 +277,16 @@ if (isset($_POST['move_document'])) {
 
 if (isset($_POST['rename_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
-    $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
+
+    $client_id = intval(getFieldById('documents', $document_id, 'document_client_id'));
+
+    enforceClientAccess();
 
     // Get Document Name before renaming for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name FROM documents WHERE document_id = $document_id");
@@ -284,6 +307,8 @@ if (isset($_POST['rename_document'])) {
 
 if (isset($_POST['bulk_move_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $folder_id = intval($_POST['bulk_folder_id']);
@@ -293,6 +318,8 @@ if (isset($_POST['bulk_move_document'])) {
     $row = mysqli_fetch_assoc($sql);
     $folder_name = sanitizeInput($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
+
+    enforceClientAccess();
 
     // Move Documents to Folder Loop
     if (isset($_POST['document_ids'])) {
@@ -322,6 +349,8 @@ if (isset($_POST['bulk_move_document'])) {
 
 if (isset($_POST['link_file_to_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
@@ -332,6 +361,8 @@ if (isset($_POST['link_file_to_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get File Name for logging
     $file_name = sanitizeInput(getFieldById('files', $file_id, 'file_name'));
@@ -349,6 +380,8 @@ if (isset($_POST['link_file_to_document'])) {
 
 if (isset($_GET['unlink_file_from_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $file_id = intval($_GET['file_id']);
@@ -359,6 +392,8 @@ if (isset($_GET['unlink_file_from_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get File Name for logging
     $file_name = sanitizeInput(getFieldById('files', $file_id, 'file_name'));
@@ -375,6 +410,8 @@ if (isset($_GET['unlink_file_from_document'])) {
 
 if (isset($_POST['link_vendor_to_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
@@ -385,6 +422,8 @@ if (isset($_POST['link_vendor_to_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Vendor Name for logging
     $vendor_name = sanitizeInput(getFieldById('vendors', $vendor_id, 'vendor_name'));
@@ -402,6 +441,8 @@ if (isset($_POST['link_vendor_to_document'])) {
 
 if (isset($_GET['unlink_vendor_from_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $vendor_id = intval($_GET['vendor_id']);
@@ -412,6 +453,8 @@ if (isset($_GET['unlink_vendor_from_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Vendor Name for logging
     $vendor_name = sanitizeInput(getFieldById('vendors', $vendor_id, 'vendor_name'));
@@ -428,6 +471,8 @@ if (isset($_GET['unlink_vendor_from_document'])) {
 
 if (isset($_POST['link_contact_to_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
@@ -439,6 +484,8 @@ if (isset($_POST['link_contact_to_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Contact Name for logging
     $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
@@ -456,6 +503,8 @@ if (isset($_POST['link_contact_to_document'])) {
 
 if (isset($_GET['unlink_contact_from_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $contact_id = intval($_GET['contact_id']);
@@ -466,6 +515,8 @@ if (isset($_GET['unlink_contact_from_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Contact Name for logging
     $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
@@ -482,6 +533,8 @@ if (isset($_GET['unlink_contact_from_document'])) {
 
 if (isset($_POST['link_asset_to_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
@@ -492,6 +545,8 @@ if (isset($_POST['link_asset_to_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Asset Name for logging
     $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
@@ -508,6 +563,8 @@ if (isset($_POST['link_asset_to_document'])) {
 
 if (isset($_GET['unlink_asset_from_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $asset_id = intval($_GET['asset_id']);
@@ -518,6 +575,8 @@ if (isset($_GET['unlink_asset_from_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Asset Name for logging
     $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
@@ -534,6 +593,8 @@ if (isset($_GET['unlink_asset_from_document'])) {
 
 if (isset($_POST['link_software_to_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
@@ -544,6 +605,8 @@ if (isset($_POST['link_software_to_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Software Name for logging
     $software_name = sanitizeInput(getFieldById('software', $software_id, 'software_name'));
@@ -561,6 +624,8 @@ if (isset($_POST['link_software_to_document'])) {
 
 if (isset($_GET['unlink_software_from_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $software_id = intval($_GET['software_id']);
@@ -571,6 +636,8 @@ if (isset($_GET['unlink_software_from_document'])) {
     $row = mysqli_fetch_assoc($sql_document);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Get Software Name for logging
     $software_name = sanitizeInput(getFieldById('software', $software_id, 'software_name'));
@@ -586,6 +653,8 @@ if (isset($_GET['unlink_software_from_document'])) {
 }
 
 if (isset($_POST['toggle_document_visibility'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
 
@@ -604,6 +673,8 @@ if (isset($_POST['toggle_document_visibility'])) {
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"UPDATE documents SET document_client_visible = $document_visible, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
     logAction("Document", "Edit", "$session_name changed document $document_name visibilty to $visable_wording in the client portal", $client_id, $document_id);
@@ -616,6 +687,8 @@ if (isset($_POST['toggle_document_visibility'])) {
 
 if (isset($_GET['export_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_GET['export_document']);
@@ -626,6 +699,8 @@ if (isset($_GET['export_document'])) {
     $document_name = sanitizeInput($row['document_name']);
     $document_content = $row['document_content'];
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     // Include the TCPDF class
     require_once('../plugins/TCPDF/tcpdf.php');
@@ -660,6 +735,8 @@ if (isset($_GET['export_document'])) {
 
 if (isset($_GET['archive_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_GET['archive_document']);
@@ -669,6 +746,8 @@ if (isset($_GET['archive_document'])) {
     $row = mysqli_fetch_assoc($sql);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
 
@@ -701,6 +780,8 @@ if (isset($_GET['archive_document'])) {
 
 if (isset($_GET['restore_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_GET['restore_document']);
@@ -710,6 +791,8 @@ if (isset($_GET['restore_document'])) {
     $row = mysqli_fetch_assoc($sql);
     $document_name = sanitizeInput($row['document_name']);
     $client_id = intval($row['document_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NULL, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
@@ -723,6 +806,8 @@ if (isset($_GET['restore_document'])) {
 
 if (isset($_GET['delete_document_version'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 3);
 
     $document_version_id = intval($_GET['delete_document_version']);
@@ -732,6 +817,8 @@ if (isset($_GET['delete_document_version'])) {
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['document_client_id']);
     $document_version_name = sanitizeInput($row['document_version_name']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM document_versions WHERE document_version_id = $document_version_id");
 
@@ -745,6 +832,8 @@ if (isset($_GET['delete_document_version'])) {
 
 if (isset($_GET['delete_document'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 3);
 
     $document_id = intval($_GET['delete_document']);
@@ -754,6 +843,8 @@ if (isset($_GET['delete_document'])) {
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['document_client_id']);
     $document_name = sanitizeInput($row['document_name']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
@@ -771,7 +862,7 @@ if (isset($_GET['delete_document'])) {
     // If there's a "from" parameter, we can use it to decide where to go
     if (isset($_GET['from']) && $_GET['from'] === 'document_details') {
         // User deleted from document_details.php
-        redirect("documents.php?client_id=$client_id");
+        redirect("files.php?client_id=$client_id");
     } else {
         // Default behavior — redirect back to previous page
         redirect();

@@ -37,7 +37,7 @@ if (isset($_GET['asset_id'])) {
 
 } elseif (isset($_GET['asset_uri_2'])) {
     // Asset query via uri2
-    $uri2 = mysqli_real_escape_string($mysqli, $_GET['asset_uri']);
+    $uri2 = mysqli_real_escape_string($mysqli, $_GET['asset_uri_2']);
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_uri_2 = '$uri2' AND asset_client_id LIKE '$client_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 
 }else {

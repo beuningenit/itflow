@@ -28,14 +28,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-list-ul mr-2"></i>
-            <?php echo nullable_htmlentities($category); ?> Categories
+            <?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?> Categories
         </h3>
         <?php
             if (!isset($_GET['archived'])) {
         ?>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/category/category_add.php?category=<?= nullable_htmlentities($category) ?>"><i
-                    class="fas fa-plus mr-2"></i>New <?php echo nullable_htmlentities($category); ?> Category</button>
+                    class="fas fa-plus mr-2"></i>New <?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?> Category</button>
         </div>
         <?php
             }
@@ -51,7 +51,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             value="<?php if (isset($q)) {
                                 echo stripslashes(nullable_htmlentities($q));
                             } ?>"
-                            placeholder="Search <?php echo nullable_htmlentities($category); ?> Categories ">
+                            placeholder="Search <?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?> Categories ">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -83,6 +83,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                            } else {
                                echo 'btn-default';
                            } ?>">Ticket</a>
+                        <a href="?category=network_interface"
+                           class="btn <?php if ($category == 'network_interface') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Network Interface</a>
+                        <a href="?category=asset_status"
+                           class="btn <?php if ($category == 'asset_status') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Asset Status</a>
+                        <a href="?category=software_type"
+                           class="btn <?php if ($category == 'software_type') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Software Type</a>
+                        <a href="?category=rack_type"
+                           class="btn <?php if ($category == 'rack_type') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Rack Type</a>
+                        <a href="?category=contact_note_type"
+                           class="btn <?php if ($category == 'contact_note_type') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Contact Note Type</a>
                         <a href="?<?php echo $url_query_strings_sort ?>&archived=1"
                             class="btn <?php if (isset($_GET['archived'])) {
                                 echo 'btn-primary';
@@ -114,6 +144,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
                         $category_name = nullable_htmlentities($row['category_name']);
+                        $category_description = nullable_htmlentities($row['category_description']);
                         $category_color = nullable_htmlentities($row['category_color']);
 
                         ?>
@@ -122,6 +153,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-url="modals/category/category_edit.php?id=<?= $category_id ?>">
                                     <?php echo $category_name; ?>
+                                    <div><small class="text-secondary"><?= $category_description ?></small></div>
                                 </a>
                             </td>
                             <td><i class="fa fa-3x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
@@ -134,12 +166,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php
                                         if ($archived) {
                                             ?>
-                                            <a class="dropdown-item text-success confirm-link"
-                                                href="post.php?unarchive_category=<?php echo $category_id; ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Unarchive
+                                            <a class="dropdown-item text-info confirm-link"
+                                                href="post.php?restore_category=<?php echo $category_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <a class="dropdown-item text-danger confirm-link"
-                                                href="post.php?delete_category=<?php echo $category_id; ?>">
+                                                href="post.php?delete_category=<?php echo $category_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                             <?php
@@ -150,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item text-danger confirm-link"
-                                                href="post.php?archive_category=<?php echo $category_id; ?>">
+                                                href="post.php?archive_category=<?php echo $category_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <?php

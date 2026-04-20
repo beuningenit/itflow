@@ -12,6 +12,8 @@ require_once 'functions.php';
 
 if (isset($_POST['add_ticket'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $subject = sanitizeInput($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
     $category = intval($_POST['category']);
@@ -81,6 +83,8 @@ if (isset($_POST['add_ticket'])) {
 }
 
 if (isset($_POST['add_ticket_comment'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     $ticket_id = intval($_POST['ticket_id']);
     $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
@@ -187,6 +191,8 @@ if (isset($_POST['add_ticket_comment'])) {
 
 if (isset($_GET['approve_ticket_task'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     $task_id = intval($_GET['approve_ticket_task']);
     $approval_id = intval($_GET['approval_id']);
     $url_key = sanitizeInput($_GET['approval_url_key']);
@@ -224,6 +230,8 @@ if (isset($_GET['approve_ticket_task'])) {
 
 if (isset($_POST['add_ticket_feedback'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $ticket_id = intval($_POST['ticket_id']);
     $feedback = sanitizeInput($_POST['add_ticket_feedback']);
 
@@ -253,6 +261,8 @@ if (isset($_POST['add_ticket_feedback'])) {
 }
 
 if (isset($_GET['resolve_ticket'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $ticket_id = intval($_GET['resolve_ticket']);
 
@@ -286,6 +296,9 @@ if (isset($_GET['resolve_ticket'])) {
 }
 
 if (isset($_GET['reopen_ticket'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
     $ticket_id = intval($_GET['reopen_ticket']);
 
     // Get ticket details for logging
@@ -318,6 +331,8 @@ if (isset($_GET['reopen_ticket'])) {
 }
 
 if (isset($_GET['close_ticket'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $ticket_id = intval($_GET['close_ticket']);
 
@@ -363,6 +378,8 @@ if (isset($_GET['logout'])) {
 
 if (isset($_POST['edit_profile'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $new_password = $_POST['new_password'];
 
     if (!empty($new_password)) {
@@ -379,14 +396,16 @@ if (isset($_POST['edit_profile'])) {
 
 if (isset($_POST['add_contact'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
         redirect("post.php?logout");
     }
 
     $contact_name = sanitizeInput($_POST['contact_name']);
     $contact_email = sanitizeInput($_POST['contact_email']);
-    $contact_technical = intval($_POST['contact_technical']);
-    $contact_billing = intval($_POST['contact_billing']);
+    $contact_technical = intval($_POST['contact_technical'] ?? 0);
+    $contact_billing = intval($_POST['contact_billing'] ?? 0);
     $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
 
     // Check the email isn't already in use
@@ -426,6 +445,8 @@ if (isset($_POST['add_contact'])) {
 
 if (isset($_POST['edit_contact'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
         redirect("post.php?logout");
     }
@@ -433,8 +454,8 @@ if (isset($_POST['edit_contact'])) {
     $contact_id = intval($_POST['contact_id']);
     $contact_name = sanitizeInput($_POST['contact_name']);
     $contact_email = sanitizeInput($_POST['contact_email']);
-    $contact_technical = intval($_POST['contact_technical']);
-    $contact_billing = intval($_POST['contact_billing']);
+    $contact_technical = intval($_POST['contact_technical'] ?? 0);
+    $contact_billing = intval($_POST['contact_billing'] ?? 0);
     $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
 
     // Get the existing contact_user_id - we look it up ourselves so the user can't just overwrite random users
@@ -475,6 +496,8 @@ if (isset($_POST['edit_contact'])) {
 }
 
 if (isset($_GET['add_payment_by_provider'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $invoice_id = intval($_GET['invoice_id']);
     $saved_payment_id = intval($_GET['add_payment_by_provider']);
@@ -672,6 +695,8 @@ if (isset($_GET['add_payment_by_provider'])) {
 
 if (isset($_POST['create_stripe_customer'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
         redirect("post.php?logout");
     }
@@ -758,6 +783,8 @@ if (isset($_POST['create_stripe_customer'])) {
 
 if (isset($_GET['create_stripe_checkout'])) {
 
+    //validateCSRFToken($_GET['csrf_token']);
+
     // This page is called by autopay_setup_stripe.js, returns a Checkout Session client_secret
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
@@ -827,6 +854,8 @@ if (isset($_GET['create_stripe_checkout'])) {
 }
 
 if (isset($_GET['stripe_save_card'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
         redirect("post.php?logout");
@@ -957,6 +986,8 @@ if (isset($_GET['stripe_save_card'])) {
 
 if (isset($_GET['delete_saved_payment'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
         redirect("post.php?logout");
     }
@@ -1059,6 +1090,8 @@ if (isset($_GET['delete_saved_payment'])) {
 
 if (isset($_POST['set_recurring_payment'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
     $saved_payment_id = intval($_POST['saved_payment_id']);
 
@@ -1111,6 +1144,8 @@ if (isset($_POST['set_recurring_payment'])) {
 
 if (isset($_POST['client_add_document'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     // Permission check - only primary or technical contacts can create documents
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
         redirect("post.php?logout");
@@ -1154,6 +1189,8 @@ if (isset($_POST['client_add_document'])) {
 }
 
 if (isset($_POST['client_upload_document'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     // Permission check - only primary or technical contacts can upload documents
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {

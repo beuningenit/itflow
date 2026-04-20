@@ -22,20 +22,21 @@ $client_id = intval($row['event_client_id']);
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-calendar mr-2" style="color:<?php echo $calendar_color; ?>"></i><?php echo $event_title; ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check mr-2" style="color:<?php echo $calendar_color; ?>"></i>Editing: <strong><?php echo $event_title; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="event_id" value="<?php echo $event_id; ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar-check mr-2"></i>Event</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pills-details<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>Details</a>
@@ -50,16 +51,6 @@ ob_start();
         <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-event<?php echo $event_id; ?>">
-
-                <div class="form-group">
-                    <label>Title <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="title" maxlength="200" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
-                    </div>
-                </div>
 
                 <div class="form-group">
                     <label>Calendar <strong class="text-danger">*</strong></label>
@@ -80,6 +71,16 @@ ob_start();
 
                             <?php } ?>
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Title <strong class="text-danger">*</strong></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="title" maxlength="200" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
                     </div>
                 </div>
 
@@ -142,7 +143,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-attendees<?php echo $event_id; ?>">
 
                 <?php if (isset($_GET['client_id'])) { ?>
-                    <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -184,7 +185,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <a class="btn btn-default text-danger mr-auto" href="post.php?delete_event=<?php echo $event_id; ?>"><i class="fa fa-calendar-times mr-2"></i>Delete</a>
+        <a class="btn btn-default text-danger mr-auto" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-calendar-times mr-2"></i>Delete</a>
         <button type="submit" name="edit_event" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>

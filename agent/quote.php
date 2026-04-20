@@ -150,22 +150,22 @@ if (isset($_GET['quote_id'])) {
                     </button>
                     <div class="dropdown-menu">
                         <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                            <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                            <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                             </a>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
-                        <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
+                        <a class="dropdown-item" href="post.php?mark_quote_sent=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                             <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                         </a>
                     </div>
                 <?php } ?>
 
                 <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
-                    <a class="btn btn-primary confirm-link" href="post.php?accept_quote=<?php echo $quote_id; ?>">
+                    <a class="btn btn-primary confirm-link" href="post.php?accept_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-thumbs-up mr-2"></i>Accept
                     </a>
-                    <a class="btn btn-default confirm-link" href="post.php?decline_quote=<?php echo $quote_id; ?>">
+                    <a class="btn btn-default confirm-link" href="post.php?decline_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-thumbs-down mr-2"></i>Decline
                     </a>
                 <?php } ?>
@@ -180,7 +180,7 @@ if (isset($_GET['quote_id'])) {
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?php echo $quote_id; ?>">
+                            <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-check mr-2"></i>Mark Invoiced
                             </a>
                         </div>
@@ -209,11 +209,11 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="#" onclick="window.print();">
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                             </a>
-                            <a class="dropdown-item" href="post.php?export_quote_pdf=<?php echo $quote_id; ?>" target="_blank">
+                            <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
                             <?php } ?>
@@ -222,7 +222,7 @@ if (isset($_GET['quote_id'])) {
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 3) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>">
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fa fa-fw fa-times mr-2"></i>Delete
                                 </a>
                             <?php } ?>
@@ -285,7 +285,7 @@ if (isset($_GET['quote_id'])) {
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-3">
                 <div class="col-md-12">
@@ -337,11 +337,11 @@ if (isset($_GET['quote_id'])) {
                                                             </button>
                                                             <div class="dropdown-menu">
                                                                 <a class="dropdown-item ajax-modal" href="#"
-                                                                    data-modal-url="modals/invoice/item_edit.php?id=<?= $item_id ?>">
+                                                                    data-modal-url="modals/quote/quote_item_edit.php?id=<?= $item_id ?>">
                                                                     <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                                 </a>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
+                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                     <i class="fa fa-fw fa-trash mr-2"></i>Delete
                                                                 </a>
                                                             </div>
@@ -367,10 +367,11 @@ if (isset($_GET['quote_id'])) {
                                                                     echo "hidden";
                                                                 } ?>>
                                         <form action="post.php" method="post" autocomplete="off">
+                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
                                             <input type="hidden" name="item_order" value="<?php
                                             //find largest order number and add 1
-                                            $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                            $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM quote_items WHERE item_quote_id = $quote_id");
                                             $row = mysqli_fetch_assoc($sql);
                                             $item_order = intval($row['item_order']) + 1;
                                             echo $item_order;
@@ -615,7 +616,8 @@ new Sortable(document.querySelector('table#items tbody'), {
 
         $.post('ajax.php', {
             update_quote_items_order: true,
-            quote_id: <?php echo $quote_id; ?>,
+            csrf_token: '<?= $_SESSION['csrf_token'] ?>',
+            quote_id: <?= $quote_id ?>,
             positions: positions
         });
     }

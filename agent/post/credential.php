@@ -8,9 +8,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_credential'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_credential', 2);
 
     require_once 'credential_model.php';
+
+    $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_favorite = $favorite, credential_contact_id = $contact_id, credential_asset_id = $asset_id, credential_client_id = $client_id");
 
@@ -34,11 +40,17 @@ if (isset($_POST['add_credential'])) {
 
 if (isset($_POST['edit_credential'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_credential', 2);
 
     require_once 'credential_model.php';
 
     $credential_id = intval($_POST['credential_id']);
+
+    $client_id = intval(getFieldById('credentials', $credential_id, 'credential_client_id'));
+
+    enforceClientAccess();
 
     // Determine if the password has actually changed (salt is rotated on all updates, so have to dencrypt both and compare)
     $current_password = decryptCredentialEntry(mysqli_fetch_row(mysqli_query($mysqli, "SELECT credential_password FROM credentials WHERE credential_id = $credential_id"))[0]); // Get current credential password
@@ -73,6 +85,8 @@ if (isset($_POST['edit_credential'])) {
 
 if(isset($_GET['archive_credential'])){
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_credential', 2);
 
     $credential_id = intval($_GET['archive_credential']);
@@ -82,6 +96,8 @@ if(isset($_GET['archive_credential'])){
     $row = mysqli_fetch_assoc($sql);
     $credential_name = sanitizeInput($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
@@ -93,11 +109,13 @@ if(isset($_GET['archive_credential'])){
 
 }
 
-if(isset($_GET['unarchive_credential'])){
+if(isset($_GET['restore_credential'])){
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_credential', 2);
 
-    $credential_id = intval($_GET['unarchive_credential']);
+    $credential_id = intval($_GET['restore_credential']);
 
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
@@ -105,9 +123,11 @@ if(isset($_GET['unarchive_credential'])){
     $credential_name = sanitizeInput($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Unarchive", "$session_name unarchived credential $credential_name", $client_id, $credential_id);
+    logAction("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$credential_name</strong> restored");
 
@@ -116,6 +136,8 @@ if(isset($_GET['unarchive_credential'])){
 }
 
 if (isset($_GET['delete_credential'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_credential', 3);
 
@@ -126,6 +148,8 @@ if (isset($_GET['delete_credential'])) {
     $row = mysqli_fetch_assoc($sql);
     $credential_name = sanitizeInput($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM credentials WHERE credential_id = $credential_id");
 
@@ -138,6 +162,8 @@ if (isset($_GET['delete_credential'])) {
 }
 
 if (isset($_POST['bulk_assign_credential_tags'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_credential', 2);
 
@@ -155,6 +181,8 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
             $row = mysqli_fetch_assoc($sql);
             $credential_name = sanitizeInput($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
+
+            enforceClientAccess();
 
             if($_POST['bulk_remove_tags']) {
                 // Delete tags if chosed to do so
@@ -207,6 +235,8 @@ if (isset($_POST['bulk_favorite_credentials'])) {
             $credential_name = sanitizeInput($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli,"UPDATE credentials SET credential_favorite = 1 WHERE credential_id = $credential_id");
 
             logAction("Credential", "Edit", "$session_name marked credential $credential_name a favorite", $client_id, $credential_id);
@@ -242,6 +272,8 @@ if (isset($_POST['bulk_unfavorite_credentials'])) {
             $row = mysqli_fetch_assoc($sql);
             $credential_name = sanitizeInput($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
+
+            enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_favorite = 0 WHERE credential_id = $credential_id");
 
@@ -281,6 +313,8 @@ if (isset($_POST['bulk_archive_credentials'])) {
             $credential_name = sanitizeInput($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
             logAction("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
@@ -296,7 +330,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
 }
 
-if (isset($_POST['bulk_unarchive_credentials'])) {
+if (isset($_POST['bulk_restore_credentials'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
@@ -307,7 +341,7 @@ if (isset($_POST['bulk_unarchive_credentials'])) {
         // Get Selected Credential Count
         $count = count($_POST['credential_ids']);
 
-        // Cycle through array and unarchive
+        // Cycle through array and restore
         foreach ($_POST['credential_ids'] as $credential_id) {
 
             $credential_id = intval($credential_id);
@@ -318,15 +352,17 @@ if (isset($_POST['bulk_unarchive_credentials'])) {
             $credential_name = sanitizeInput($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
 
-            logAction("Credential", "Unarchive", "$session_name unarchived credential $credential_name", $client_id, $credential_id);
+            logAction("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
 
         }
 
-        logAction("Credential", "Bulk Unarchive", "$session_name unarchived $count credential(s)", $client_id);
+        logAction("Credential", "Bulk Restore", "$session_name restored $count credential(s)", $client_id);
 
-        flash_alert("Unarchived <strong>$count</strong> credential(s)");
+        flash_alert("Restored <strong>$count</strong> credential(s)");
 
     }
 
@@ -356,6 +392,8 @@ if (isset($_POST['bulk_delete_credentials'])) {
             $credential_name = sanitizeInput($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
 
             logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
@@ -374,6 +412,8 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
 if (isset($_POST['export_credentials_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_credential');
 
     if ($_POST['client_id']) {
@@ -381,6 +421,7 @@ if (isset($_POST['export_credentials_csv'])) {
         $client_query = "AND credential_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        enforceClientAccess();
     } else {
         $client_query = '';
         $client_id = 0;
@@ -388,7 +429,7 @@ if (isset($_POST['export_credentials_csv'])) {
     }
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM credentials LEFT JOIN clients ON client_id = credential_client_id WHERE credential_archived_at IS NULL $client_query ORDER BY credential_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM credentials LEFT JOIN clients ON client_id = credential_client_id WHERE credential_archived_at IS NULL $client_query $access_permission_query ORDER BY credential_name ASC");
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
@@ -431,9 +472,14 @@ if (isset($_POST['export_credentials_csv'])) {
 
 if (isset($_POST["import_credentials_csv"])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_credential', 2);
 
     $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
+
     $error = false;
 
     if (!empty($_FILES["file"]["tmp_name"])) {

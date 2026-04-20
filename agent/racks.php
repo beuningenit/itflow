@@ -109,11 +109,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?php echo $rack_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?php echo $rack_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?php echo $rack_id; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?php echo $rack_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>
@@ -270,7 +270,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 </button>
                                                                 <div class="dropdown-menu">
                                                                     <a class="dropdown-item text-danger text-bold confirm-link"
-                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>">
+                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                        <i class="fas fa-fw fa-minus mr-2"></i>Remove
                                                                     </a>
                                                                 </div>
@@ -302,7 +302,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                             <div class="dropdown-menu">
                                                                 <?php foreach ($unit_devices as $d) { ?>
                                                                     <a class="dropdown-item text-danger text-bold confirm-link"
-                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>">
+                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                        <i class="fas fa-fw fa-minus mr-2"></i>Remove
                                                                     </a>
                                                                 <?php } ?>

@@ -21,8 +21,9 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="account_id" value="<?php echo $account_id; ?>">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="account_id" value="<?php echo $account_id; ?>">
+
     <div class="modal-body">
         <div class="form-group">
             <label>Account Name <strong class="text-danger">*</strong></label>

@@ -226,12 +226,12 @@ if (isset($_GET['invoice_id'])) {
                                 </button>
                                 <div class="dropdown-menu">
                                     <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                        <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                        <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                         </a>
                                         <div class="dropdown-divider"></div>
                                     <?php } ?>
-                                    <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
+                                    <a class="dropdown-item" href="post.php?mark_invoice_sent=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                                     </a>
                                 </div>
@@ -254,7 +254,7 @@ if (isset($_GET['invoice_id'])) {
                             <?php } ?>
 
                             <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>
-                                <a class="btn btn-dark" href="post.php?mark_invoice_non-billable=<?php echo $invoice_id; ?>">
+                                <a class="btn btn-dark" href="post.php?mark_invoice_non-billable=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     Mark Non-Billable
                                 </a>
                             <?php } ?>
@@ -285,14 +285,14 @@ if (isset($_GET['invoice_id'])) {
                                 <a class="dropdown-item" href="#" onclick="window.print();">
                                     <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                                 </a>
-                                <a class="dropdown-item" href="post.php?export_invoice_pdf=<?php echo $invoice_id; ?>" target="_blank">
+                                <a class="dropdown-item" href="post.php?export_invoice_pdf=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                     <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                                 </a>
-                                <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?php echo $invoice_id; ?>" target="_blank">
+                                <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                     <i class="fa fa-fw fa-box-open text-secondary mr-2"></i>Packing Slip
                                 </a>
                                 <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                    <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                    <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                     </a>
                                 <?php } ?>
@@ -301,12 +301,12 @@ if (isset($_GET['invoice_id'])) {
                                 </a>
                                 <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid' && $invoice_status !== 'Non-Billable') { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?cancel_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fa fa-fw fa-times mr-2"></i>Cancel
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </a>
                             </div>
@@ -426,11 +426,11 @@ if (isset($_GET['invoice_id'])) {
                                                         </button>
                                                         <div class="dropdown-menu">
                                                             <a class="dropdown-item ajax-modal" href="#"
-                                                                data-modal-url="modals/invoice/item_edit.php?id=<?= $item_id ?>">
+                                                                data-modal-url="modals/invoice/invoice_item_edit.php?id=<?= $item_id ?>">
                                                                 <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                             </a>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
+                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -449,6 +449,7 @@ if (isset($_GET['invoice_id'])) {
                                 ?>
                                 <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled" || lookupUserPermission("module_sales") <= 1) { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
                                         <input type="hidden" id="product_id" name="product_id" value="<?= $item_product_id ?? 0 ?>">
                                         <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
@@ -656,7 +657,7 @@ if (isset($_GET['invoice_id'])) {
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                                     <td><?php echo $payment_reference; ?></td>
                                     <td><?php echo $account_name; ?></td>
-                                    <td class="text-center"><a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-times"></i></a></td>
+                                    <td class="text-center"><a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-times"></i></a></td>
                                 </tr>
                                 <?php
                             }
@@ -816,6 +817,7 @@ new Sortable(document.querySelector('table#items tbody'), {
 
         $.post('ajax.php', {
             update_invoice_items_order: true,
+            csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             invoice_id: <?php echo $invoice_id; ?>,
             positions: positions
         });

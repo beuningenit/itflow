@@ -11,7 +11,7 @@ if (isset($_POST['api_key_decrypt_password'])) {
 if (isset($_POST['credential_name'])) {
     $name = sanitizeInput($_POST['credential_name']);
 } elseif (isset($credential_row) && isset($credential_row['credential_name'])) {
-    $name = $credential_row['credential_name'];
+    $name = mysqli_real_escape_string($mysqli, $credential_row['credential_name']);
 } else {
     $name = '';
 }
@@ -19,7 +19,7 @@ if (isset($_POST['credential_name'])) {
 if (isset($_POST['credential_description'])) {
     $description = sanitizeInput($_POST['credential_description']);
 } elseif (isset($credential_row) && isset($credential_row['credential_description'])) {
-    $description = $credential_row['credential_description'];
+    $description = mysqli_real_escape_string($mysqli, $credential_row['credential_description']);
 } else {
     $description = '';
 }
@@ -27,7 +27,7 @@ if (isset($_POST['credential_description'])) {
 if (isset($_POST['credential_uri'])) {
     $uri = sanitizeInput($_POST['credential_uri']);
 } elseif (isset($credential_row) && isset($credential_row['credential_uri'])) {
-    $uri = $credential_row['credential_uri'];
+    $uri = mysqli_real_escape_string($mysqli, $credential_row['credential_uri']);
 } else {
     $uri = '';
 }
@@ -35,7 +35,7 @@ if (isset($_POST['credential_uri'])) {
 if (isset($_POST['credential_uri_2'])) {
     $uri_2 = sanitizeInput($_POST['credential_uri_2']);
 } elseif (isset($credential_row) && isset($credential_row['credential_uri_2'])) {
-    $uri_2 = $credential_row['credential_uri_2'];
+    $uri_2 = mysqli_real_escape_string($mysqli, $credential_row['credential_uri_2']);
 } else {
     $uri_2 = '';
 }
@@ -61,12 +61,10 @@ if (isset($_POST['credential_password'])) {
     $password_changed = false;
 }
 
-
-
 if (isset($_POST['credential_otp_secret'])) {
     $otp_secret = sanitizeInput($_POST['credential_otp_secret']);
 } elseif (isset($credential_row) && isset($credential_row['credential_otp_secret'])) {
-    $otp_secret = $credential_row['credential_otp_secret'];
+    $otp_secret = mysqli_real_escape_string($mysqli, $credential_row['credential_otp_secret']);
 } else {
     $otp_secret = '';
 }
@@ -74,17 +72,17 @@ if (isset($_POST['credential_otp_secret'])) {
 if (isset($_POST['credential_note'])) {
     $note = sanitizeInput($_POST['credential_note']);
 } elseif (isset($credential_row) && isset($credential_row['credential_note'])) {
-    $note = $credential_row['credential_note'];
+    $note = mysqli_real_escape_string($mysqli, $credential_row['credential_note']);
 } else {
     $note = '';
 }
 
-if (isset($_POST['credential_important'])) {
-    $important = intval($_POST['credential_important']);
-} elseif (isset($credential_row) && isset($credential_row['credential_important'])) {
-    $important = $credential_row['credential_important'];
+if (isset($_POST['credential_favorite'])) {
+    $favorite = intval($_POST['credential_favorite']);
+} elseif (isset($credential_row) && isset($credential_row['credential_favorite'])) {
+    $favorite = $credential_row['credential_favorite'];
 } else {
-    $important = '';
+    $favorite = 0;
 }
 
 if (isset($_POST['credential_contact_id'])) {
@@ -92,7 +90,7 @@ if (isset($_POST['credential_contact_id'])) {
 } elseif (isset($credential_row) && isset($credential_row['credential_contact_id'])) {
     $contact_id = $credential_row['credential_contact_id'];
 } else {
-    $contact_id = '';
+    $contact_id = 0;
 }
 
 if (isset($_POST['credential_vendor_id'])) {
@@ -100,7 +98,7 @@ if (isset($_POST['credential_vendor_id'])) {
 } elseif (isset($credential_row) && isset($credential_row['credential_vendor_id'])) {
     $vendor_id = $credential_row['credential_vendor_id'];
 } else {
-    $vendor_id = '';
+    $vendor_id = 0;
 }
 
 if (isset($_POST['credential_asset_id'])) {
@@ -108,7 +106,7 @@ if (isset($_POST['credential_asset_id'])) {
 } elseif (isset($credential_row) && isset($credential_row['credential_asset_id'])) {
     $asset_id = $credential_row['credential_asset_id'];
 } else {
-    $asset_id = '';
+    $asset_id = 0;
 }
 
 if (isset($_POST['credential_software_id'])) {
@@ -116,5 +114,5 @@ if (isset($_POST['credential_software_id'])) {
 } elseif (isset($credential_row) && isset($credential_row['credential_software_id'])) {
     $software_id = $credential_row['credential_software_id'];
 } else {
-    $software_id = '';
+    $software_id = 0;
 }

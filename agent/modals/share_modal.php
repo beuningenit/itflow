@@ -10,6 +10,7 @@
                 </button>
             </div>
             <form action="ajax.php" method="GET" id="newShareLink">
+                <input type="hidden" name="csrf_token" id="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="client_id" id="share_client_id" value="">
                 <input type="hidden" name="item_type" id="share_item_type" value="">
                 <input type="hidden" name="item_ref_id" id="share_item_ref_id" value="">

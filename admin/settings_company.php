@@ -37,7 +37,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
                         <div class="col-md-3 text-center">
                             <?php if ($company_logo) { ?>
                                 <img class="img-thumbnail" src="<?php echo "../uploads/settings/$company_logo"; ?>">
-                                <a href="post.php?remove_company_logo" class="btn btn-outline-danger btn-block">Remove Logo</a>
+                                <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger btn-block">Remove Logo</a>
                                 <hr>
                             <?php } ?>
                             <div class="form-group">

@@ -8,5 +8,5 @@ $description = sanitizeInput($_POST['description']);
 $start = sanitizeInput($_POST['start']);
 $end = sanitizeInput($_POST['end']);
 $repeat = sanitizeInput($_POST['repeat'] ?? 0);
-$client = intval($_POST['client']);
+$client_id = intval($_POST['client_id']);
 $email_event = intval($_POST['email_event'] ?? 0);

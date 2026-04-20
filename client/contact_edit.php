@@ -57,10 +57,8 @@ if ($row) {
 
     <div class="col-md-6">
         <form action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
-            <!-- Prevent undefined checkbox errors on submit -->
-            <input type="hidden" name="contact_billing" value="0">
-            <input type="hidden" name="contact_technical" value="0">
 
             <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>

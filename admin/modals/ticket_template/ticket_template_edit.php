@@ -9,7 +9,9 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
+
                 <div class="modal-body">
 
                     <div class="form-group">
@@ -45,7 +47,7 @@
                             <input type="text" class="form-control" name="description" value="<?php echo $ticket_template_description; ?>" placeholder="Short description">
                         </div>
                     </div>
-            
+
                 </div>
                 <div class="modal-footer">
                     <button type="submit" name="edit_ticket_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>

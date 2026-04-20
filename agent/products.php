@@ -60,7 +60,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title mt-2"><i class="fas fa-fw <?= $type_icon ?> mr-2"></i><?= $type_display ?></h3>
             <div class="card-tools">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/product/product_add.php?type=<?= $type_filter ?>"><i class="fas fa-plus mr-2"></i>New <strong><?= ucwords($type_filter); ?></strong></button>
+                    <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                    <button type="button"
+                        class="btn btn-primary ajax-modal"
+                        data-modal-url="modals/product/product_add.php?type=<?= $type_filter ?>">
+                        <i class="fas fa-plus mr-2"></i>New <strong><?= ucwords($type_filter); ?></strong>
+                    </button>
+                    <?php } ?>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark ajax-modal"
@@ -163,11 +169,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <div class="table-responsive-sm">
+                <div class="table-responsive">
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                         <tr>
-                            <td class="bg-light pr-0">
+                            <td class="bg-light checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
@@ -245,7 +251,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             ?>
                             <tr>
-                                <td class="pr-0 bg-light">
+                                <td class="bg-light checkbox-column">
                                     <div class="form-check">
                                         <input class="form-check-input bulk-select" type="checkbox" name="product_ids[]" value="<?= $product_id ?>">
                                     </div>
@@ -287,18 +293,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <?php if ($session_user_role == 3) { ?>
                                                 <?php if ($product_archived_at) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-info" href="post.php?unarchive_product=<?php echo $product_id; ?>">
-                                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                                <a class="dropdown-item text-info" href="post.php?restore_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                                 </a>
                                                 <?php if ($config_destructive_deletes_enable) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?php echo $product_id; ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                                 <?php } ?>
                                                 <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?php echo $product_id; ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                                 <?php } ?>

@@ -234,41 +234,56 @@ ob_start();
 
     <ul class="nav nav-pills nav-justified mb-3">
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-asset-details<?php echo $asset_id; ?>"><i class="fas fa-fw fa-<?php echo $device_icon; ?> fa-2x"></i><br>Details</a>
+            <a class="nav-link active" data-toggle="pill" href="#pills-asset-details">
+                <i class="fas fa-fw fa-<?= $device_icon ?> mr-2"></i>Details
+            </a>
         </li>
         <?php if ($interface_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-interfaces<?php echo $asset_id; ?>"><i class="fas fa-fw fa-ethernet fa-2x"></i><br>Interfaces (<?php echo $interface_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-interfaces">
+                <i class="fas fa-fw fa-ethernet mr-2"></i>Interfaces (<?= $interface_count ?>)
+            </a>
         </li>
         <?php } ?>
         <?php if ($credential_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-credentials<?php echo $asset_id; ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?php echo $credential_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-credentials">
+                <i class="fas fa-fw fa-key mr-2"></i>Credentials (<?= $credential_count ?>)
+            </a>
         </li>
         <?php } ?>
         <?php if ($ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-tickets<?php echo $asset_id; ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?php echo $ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-tickets">
+                <i class="fas fa-fw fa-life-ring mr-2"></i>Tickets (<?= $ticket_count ?>)
+            </a>
         </li>
         <?php } ?>
         <?php if ($recurring_ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-recurring-tickets<?php echo $asset_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Recurring Tickets (<?php echo $recurring_ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-recurring-tickets">
+                <i class="fas fa-fw fa-redo-alt mr-2"></i>Recurring Tickets (<?= $recurring_ticket_count ?>)
+            </a>
         </li>
         <?php } ?>
          <?php if ($software_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-licenses<?php echo $asset_id; ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?php echo $software_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-licenses">
+                <i class="fas fa-fw fa-cube mr-2"></i>Licenses (<?= $software_count ?>)
+            </a>
         </li>
         <?php } ?>
         <?php if ($document_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-documents<?php echo $asset_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?php echo $document_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-documents">
+                <i class="fas fa-fw fa-file-alt mr-2"></i>Documents (<?= $document_count ?>)
+            </a>
         </li>
         <?php } ?>
         <?php if ($file_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-files<?php echo $asset_id; ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?php echo $file_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-files">
+                <i class="fas fa-fw fa-briefcase mr-2"></i>Files (<?= $file_count ?>)</a>
         </li>
         <?php } ?>
     </ul>
@@ -277,7 +292,7 @@ ob_start();
 
     <div class="tab-content">
 
-        <div class="tab-pane fade show active" id="pills-asset-details<?php echo $asset_id; ?>">
+        <div class="tab-pane fade show active" id="pills-asset-details">
             <div class="card">
                 <div class="card-header">
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i><?= $asset_name ?>
@@ -393,6 +408,7 @@ ob_start();
                     "ajax.php",
                     {
                         asset_set_notes: 'TRUE',
+                        csrf_token: '<?= $_SESSION['csrf_token'] ?>',
                         asset_id: asset_id,
                         notes: notes
                     }
@@ -401,17 +417,17 @@ ob_start();
         </script>
 
         <?php if ($interface_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-interfaces<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-interfaces">
 
             <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover table-sm">
+                <table class="table table-striped table-hover table-sm">
                     <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
                         <tr>
                             <th>Name / Port</th>
                             <th>Type</th>
-                            <th>MAC</th>
-                            <th>IP</th>
                             <th>Network</th>
+                            <th>IP</th>
+                            <th>MAC</th>
                             <th>Connected To</th>
                         </tr>
                     </thead>
@@ -464,9 +480,12 @@ ob_start();
                                 <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                             </td>
                             <td><?php echo $interface_type_display; ?></td>
-                            <td><?php echo $interface_mac_display; ?></td>
-                            <td><?php echo $interface_ip_display; ?></td>
                             <td><?php echo $network_name_display; ?></td>
+                            <td>
+                                <?php echo $interface_ip_display; ?>
+                                <div><small class="text-secondary"><?= $interface_ipv6 ?></div>
+                            </td>
+                            <td><?php echo $interface_mac_display; ?></td>
                             <td><?php echo $connected_to_display; ?></td>
                         </tr>
                     <?php } ?>
@@ -477,7 +496,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($credential_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-credentials<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-credentials">
             <div class="table-responsive-sm-sm">
                 <table class="table table-sm table-striped table-borderless table-hover">
                     <thead>
@@ -573,7 +592,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-tickets<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-tickets">
             <div class="table-responsive-sm">
                 <table class="table table-sm table-striped table-borderless table-hover">
                     <thead class="text-dark">
@@ -661,7 +680,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($recurring_ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-recurring-tickets<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-recurring-tickets">
 
             <div class="table-responsive-sm">
                 <table class="table table-sm table-striped table-borderless table-hover">
@@ -700,7 +719,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($software_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-licenses<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-licenses">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark">
@@ -767,7 +786,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($document_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-documents<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-documents">
 
             <div class="table-responsive-sm">
                 <table class="table table-sm table-striped table-borderless table-hover">
@@ -821,7 +840,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($file_count) { ?>
-        <div class="tab-pane fade" id="pills-asset-files<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-files">
             <div class="table-responsive-sm">
                 <table class="table table-sm table-striped table-borderless table-hover">
                     <thead class="text-dark">

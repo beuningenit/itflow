@@ -135,28 +135,6 @@ $config_whitelabel_key = $row['config_whitelabel_key'];
 
 
 // Select Arrays
-
-$theme_colors_array = array (
-    'lightblue',
-    'blue',
-    'cyan',
-    'green',
-    'olive',
-    'teal',
-    'red',
-    'maroon',
-    'pink',
-    'purple',
-    'indigo',
-    'fuchsia',
-    'yellow',
-    'orange',
-    'yellow',
-    'black',
-    'navy',
-    'gray'
-);
-
 $colors_array = array (
     'lightblue',
     'blue',
@@ -180,28 +158,9 @@ $colors_array = array (
     'olive'
 );
 
-$net_terms_array = array (
-    '0'=>'On Receipt',
-    '7'=>'7 Days',
-    '10'=>'10 Days',
-    '14'=>'14 Days',
-    '15'=>'15 Days',
-    '30'=>'30 Days',
-    '60'=>'60 Days',
-    '90'=>'90 Days'
-);
-
 $records_per_page_array = array ('5','10','15','20','30','50','100');
 
 include_once "settings_localization_array.php";
-
-
-$category_types_array = array (
-    'Expense',
-    'Income',
-    'Payment Method',
-    'Referral'
-);
 
 $asset_types_array = array (
     'Laptop'=>'fa-laptop',
@@ -218,98 +177,4 @@ $asset_types_array = array (
     'Camera'=>'fa-video',
     'Virtual Machine'=>'fa-cloud',
     'Other'=>'fa-tag'
-);
-
-$software_types_array = array (
-    'Software as a Service (SaaS)',
-    'Productivity Suites',
-    'Web Application',
-    'Desktop Application',
-    'Mobile Application',
-    'Security Software',
-    'System Software',
-    'Operating System',
-    'Other'
-);
-
-$license_types_array = array (
-    'Device',
-    'User'
-);
-
-$document_types_array = array (
-    '0'=>'Document',
-    '1'=>'Template',
-    '2'=>'Global Template'
-);
-
-$asset_status_array = array (
-    'Ready to Deploy',
-    'Deployed',
-    'Out for Repair',
-    'Lost',
-    'Stolen',
-    'Retired'
-);
-
-$ticket_status_array = array (
-    'Open',
-    'On Hold',
-    'Auto Close',
-    'Closed'
-);
-
-$industry_select_array = array(
-    "Accounting",
-    "Agriculture",
-    "Automotive",
-    "Construction",
-    "Education",
-    "Entertainent",
-    "Finance",
-    "Government",
-    "Healthcare",
-    "Hospititality",
-    "Information Technology",
-    "Insurance",
-    "Pharmacy",
-    "Law",
-    "Manufacturing",
-    "Marketing & Advertising",
-    "Military",
-    "Non-Profit",
-    "Real Estate",
-    "Retail",
-    "Services",
-    "Transportation",
-    "Other" // An 'Other' option for industries not listed
-);
-
-$start_page_select_array = array (
-    'dashboard.php'=>'Dashboard',
-    'clients.php'=> 'Client Management',
-    'tickets.php'=> 'Support Tickets',
-    'invoices.php' => 'Invoices'
-);
-
-$rack_type_select_array = array(
-    "Open Wall-Mount",
-    "Enclosed Wall-Mount",
-    "Open Floor-Standing",
-    "Enclosed Floor-Standing",
-    "Other"
-);
-
-$note_types_array = array (
-    'Call'=>'fa-phone-alt',
-    'Email'=>'fa-envelope',
-    'Meeting'=>'fa-handshake',
-    'In Person'=>'fa-people-arrows',
-    'Note'=>'fa-sticky-note'
-);
-
-$interface_types_array = array (
-    'Ethernet',
-    'SFP',
-    'WiFi'
 );

@@ -17,9 +17,10 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <?php if (isset($_GET['project_id'])) { ?>
-    <input type="hidden" name="project" value="<?php echo intval($_GET['project_id']); ?>">
+    <input type="hidden" name="project_id" value="<?php echo intval($_GET['project_id']); ?>">
     <?php } ?>
 
     <div class="modal-body">
@@ -46,7 +47,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-ticket-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client" value="<?= $client_id ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -55,7 +56,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="client" required>
+                            <select class="form-control select2" name="client_id" required>
                                 <option value="">- Client -</option>
                                 <?php
 
@@ -156,7 +157,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 </div>
-                                <select class="form-control select2" name="category">
+                                <select class="form-control select2" name="category_id">
                                     <option value="0">- Not Categorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -234,11 +235,11 @@ ob_start();
 
             </div>
 
-            <?php if($client_id) { ?>
+            <?php if ($client_id) { ?>
 
                 <div class="tab-pane fade" id="pills-ticket-contacts">
 
-                    <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
                     <div class="form-group">
                         <label>Contact</label>
@@ -246,7 +247,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="contact">
+                            <select class="form-control select2" name="contact_id">
                                 <option value="0">- No One -</option>
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
@@ -320,7 +321,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                             </div>
-                            <select class="form-control select2" name="asset">
+                            <select class="form-control select2" name="asset_id">
                                 <option value="0">- None -</option>
                                 <?php
 
@@ -370,7 +371,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                             </div>
-                            <select class="form-control select2" name="location">
+                            <select class="form-control select2" name="location_id">
                                 <option value="0">- None -</option>
                                 <?php
 
@@ -396,7 +397,7 @@ ob_start();
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="vendor">
+                                    <select class="form-control select2" name="vendor_id">
                                         <option value="0">- None -</option>
                                         <?php
 
@@ -435,7 +436,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                             </div>
-                            <select class="form-control select2" name="project">
+                            <select class="form-control select2" name="project_id">
                                 <option value="0">- Select Project -</option>
                                 <?php
 

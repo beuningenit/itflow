@@ -4,6 +4,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_project_template'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
 
@@ -21,6 +23,8 @@ if (isset($_POST['add_project_template'])) {
 
 if (isset($_POST['edit_project_template'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $project_template_id = intval($_POST['project_template_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
@@ -37,6 +41,8 @@ if (isset($_POST['edit_project_template'])) {
 
 if (isset($_POST['edit_ticket_template_order'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $project_template_id = intval($_POST['project_template_id']);
     $order = intval($_POST['order']);
@@ -48,6 +54,8 @@ if (isset($_POST['edit_ticket_template_order'])) {
 }
 
 if (isset($_POST['add_ticket_template_to_project_template'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     $project_template_id = intval($_POST['project_template_id']);
     $ticket_template_id = intval($_POST['ticket_template_id']);
@@ -65,7 +73,8 @@ if (isset($_POST['add_ticket_template_to_project_template'])) {
 
 if (isset($_POST['remove_ticket_template_from_project_template'])) {
 
-    validateTechRole();
+    validateCSRFToken($_POST['csrf_token']);
+
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $project_template_id = intval($_POST['project_template_id']);
 
@@ -81,6 +90,8 @@ if (isset($_POST['remove_ticket_template_from_project_template'])) {
 
 if (isset($_GET['delete_project_template'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     $project_template_id = intval($_GET['delete_project_template']);
 
     $project_template_name = sanitizeInput(getFieldById('project_templates', $project_template_id, 'project_template_name'));
@@ -95,5 +106,5 @@ if (isset($_GET['delete_project_template'])) {
     flash_alert("Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks deleted", 'error');
 
     redirect();
-    
+
 }

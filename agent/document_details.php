@@ -192,10 +192,10 @@ $page_title = $row['document_name'];
                     onclick="populateShareModal(<?= "$client_id, 'Document', $document_id"; ?>)">
                     <i class="fas fa-fw fa-share" title="Share"></i>
                 </button>
-                <a class="btn btn-success mr-1" href="post.php?export_document=<?= $document_id ?>"><i class='fas fa-fw fa-file-pdf' title="PDF Export"></i></a>
+                <a class="btn btn-success mr-1" href="post.php?export_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class='fas fa-fw fa-file-pdf' title="PDF Export"></i></a>
                 <button type="button" class="btn btn-secondary mr-4" onclick="window.print();"><i class="fas fa-fw fa-print" title="Print"></i></button>
-                <a class="btn btn-warning mr-1 confirm-link" href="post.php?archive_document=<?= $document_id ?>" title="Archive"><i class='fas fa-fw fa-archive'></i></a>
-                <a class="btn btn-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&from=document_details" title="Delete"><i class='fas fa-fw fa-trash-alt'></i></a>
+                <a class="btn btn-warning mr-1 confirm-link" href="post.php?archive_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Archive"><i class='fas fa-fw fa-archive'></i></a>
+                <a class="btn btn-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>&from=document_details" title="Delete"><i class='fas fa-fw fa-trash-alt'></i></a>
             </div>
         </div>
         <div class="card card-body bg-light">
@@ -226,7 +226,7 @@ $page_title = $row['document_name'];
                 ?>
                 <div class="ml-2">
                     <a href="files.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>&q=<?= $file_name ?>" target="_blank"><?= $file_name ?></a>
-                    <a class="confirm-link" href="post.php?unlink_file_from_document&file_id=<?= $file_id ?>&document_id=<?= $document_id ?>">
+                    <a class="confirm-link" href="post.php?unlink_file_from_document&file_id=<?= $file_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary float-right" title="Unlink File"></i>
                     </a>
                 </div>
@@ -261,7 +261,7 @@ $page_title = $row['document_name'];
                         data-modal-size="lg"
                         data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>">
                         <?php echo $contact_name; ?></a>
-                    <a class="confirm-link float-right" href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
+                    <a class="confirm-link float-right" href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Contact"></i>
                     </a>
                 </div>
@@ -296,7 +296,7 @@ $page_title = $row['document_name'];
                         data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
                         <?php echo $asset_name; ?>
                     </a>
-                    <a class="confirm-link float-right" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
+                    <a class="confirm-link float-right" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Asset"></i>
                     </a>
                 </div>
@@ -328,7 +328,7 @@ $page_title = $row['document_name'];
                 ?>
                 <div class="ml-2">
                     <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?></a>
-                    <a class="confirm-link float-right" href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
+                    <a class="confirm-link float-right" href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary" title="Unlink License"></i>
                     </a>
                 </div>
@@ -362,7 +362,7 @@ $page_title = $row['document_name'];
                     <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor_details.php?id=<?= $vendor_id ?>">
                         <?php echo $vendor_name; ?>
                     </a>
-                    <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
+                    <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Vendor"></i>
                     </a>
                 </div>
@@ -415,7 +415,7 @@ $page_title = $row['document_name'];
                         data-modal-url="modals/document/document_version_view.php?id=<?= $document_version_id ?>">
                         <?php echo "$document_version_created_date | $document_version_author"; ?>
                     </a>
-                    <a class="confirm-link float-right" href="post.php?delete_document_version=<?php echo $document_version_id; ?>">
+                    <a class="confirm-link float-right" href="post.php?delete_document_version=<?php echo $document_version_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>
                 </div>

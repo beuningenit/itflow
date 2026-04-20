@@ -73,8 +73,9 @@ $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'svg', 'pdf', '
 /** ------------------------------------------------------------------
  * Ticket / Reply helpers (unchanged)
  * ------------------------------------------------------------------ */
-function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments, $original_message_file) {
+function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments, $original_message_file, $ccs) {
     global $mysqli, $config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_ticket_default_billable, $allowed_extensions;
+    $bad_pattern = "/do[\W_]*not[\W_]*reply|no[\W_]*reply/i"; // Email addresses to ignore
 
     // Atomically increment and get the new ticket number
     mysqli_query($mysqli, "
@@ -145,13 +146,20 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         }
     }
 
-    // Guest ticket watchers
-    if ($client_id == 0) {
+    // Add unknown guests as ticket watcher
+    if ($client_id == 0 && !preg_match($bad_pattern, $contact_email_esc)) {
         mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$contact_email_esc', watcher_ticket_id = $id");
     }
 
+    // Add CCs as ticket watchers
+    foreach ($ccs as $cc) {
+        if (filter_var($cc, FILTER_VALIDATE_EMAIL) && !preg_match($bad_pattern, $cc)) {
+            $cc_esc = mysqli_real_escape_string($mysqli, $cc);
+            mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$cc_esc', watcher_ticket_id = $id");
+        }
+    }
+
     // External email
-    $bad_pattern = "/do[\W_]*not[\W_]*reply|no[\W_]*reply/i";
     $data = [];
     if ($config_ticket_client_general_notifications == 1 && !preg_match($bad_pattern, $contact_email)) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
@@ -600,16 +608,26 @@ foreach ($messages as $message) {
     file_put_contents("../uploads/tmp/{$original_message_file}", $raw_message);
 
     // From
-    $fromCol    = $message->getFrom();
-    $fromFirst  = ($fromCol && $fromCol->count()) ? $fromCol->first() : null;
-    $from_email = sanitizeInput($fromFirst->mail ?? 'itflow-guest@example.com');
-    $from_name  = sanitizeInput($fromFirst->personal ?? 'Unknown');
+    $from_col    = $message->getFrom();
+    $from_first  = ($from_col && $from_col->count()) ? $from_col->first() : null;
+    $from_email = sanitizeInput($from_first->mail ?? 'itflow-guest@example.com');
+    $from_name  = sanitizeInput($from_first->personal ?? 'Unknown');
 
     $from_domain = explode("@", $from_email);
     $from_domain = sanitizeInput(end($from_domain));
 
     // Subject
     $subject = sanitizeInput((string)$message->getSubject() ?: 'No Subject');
+
+    // CC
+    $ccs = array();
+    $cc_attr = $message->header->cc;
+    $cc_list = $cc_attr->toArray();
+    foreach ($cc_list as $cc_addr) {
+        if ($cc_addr instanceof \Webklex\PHPIMAP\Address) {
+            $ccs[] = $cc_addr->mail;
+        }
+    }
 
     // Date (string)
     $dateAttr = $message->getDate();                  // Attribute
@@ -721,7 +739,7 @@ foreach ($messages as $message) {
             $contact_email = sanitizeInput($rowc['contact_email']);
             $client_id     = intval($rowc['contact_client_id']);
 
-            $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file);
+            $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
         }
     }
 
@@ -743,7 +761,7 @@ foreach ($messages as $message) {
             logAction("Contact", "Create", "Email parser: created contact " . mysqli_real_escape_string($mysqli, $contact_name), $client_id, $contact_id);
             customAction('contact_create', $contact_id);
 
-            $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file);
+            $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
         }
     }
 
@@ -752,7 +770,7 @@ foreach ($messages as $message) {
 
         $bad_from_pattern = "/daemon|postmaster|bounce|mta/i"; //  Stop NDRs with bad subjects raising new tickets
         if (!preg_match($bad_from_pattern, $from_email)) {
-            $email_processed = addTicket(0, $from_name, $from_email, 0, $date, $subject, $message_body, $attachments, $original_message_file);
+            $email_processed = addTicket(0, $from_name, $from_email, 0, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
 
         } else {
 

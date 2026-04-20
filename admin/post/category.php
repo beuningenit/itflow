@@ -8,9 +8,11 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_category'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'category_model.php';
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color'");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_description = '$description', category_type = '$type', category_color = '$color'");
 
     $category_id = mysqli_insert_id($mysqli);
 
@@ -24,11 +26,13 @@ if (isset($_POST['add_category'])) {
 
 if (isset($_POST['edit_category'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'category_model.php';
 
     $category_id = intval($_POST['category_id']);
 
-    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_type = '$type', category_color = '$color' WHERE category_id = $category_id");
+    mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_description = '$description', category_type = '$type', category_color = '$color' WHERE category_id = $category_id");
 
     logAction("Category", "Edit", "$session_name edited category $type $name", 0, $category_id);
 
@@ -39,6 +43,8 @@ if (isset($_POST['edit_category'])) {
 }
 
 if (isset($_GET['archive_category'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $category_id = intval($_GET['archive_category']);
 
@@ -58,9 +64,11 @@ if (isset($_GET['archive_category'])) {
 
 }
 
-if (isset($_GET['unarchive_category'])) {
+if (isset($_GET['restore_category'])) {
 
-    $category_id = intval($_GET['unarchive_category']);
+    validateCSRFToken($_GET['csrf_token']);
+
+    $category_id = intval($_GET['restore_category']);
 
     // Get Category Name and Type for logging
     $sql = mysqli_query($mysqli,"SELECT category_name, category_type FROM categories WHERE category_id = $category_id");
@@ -70,15 +78,17 @@ if (isset($_GET['unarchive_category'])) {
 
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NULL WHERE category_id = $category_id");
 
-    logAction("Category", "Unarchive", "$session_name unarchived category $category_type $category_name", 0, $category_id);
+    logAction("Category", "Restore", "$session_name retored category $category_type $category_name", 0, $category_id);
 
-    flash_alert("Category $category_type <strong>$category_name</strong> unarchived");
+    flash_alert("Category $category_type <strong>$category_name</strong> restored");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_category'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $category_id = intval($_GET['delete_category']);
 

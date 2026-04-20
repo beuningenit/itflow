@@ -8,11 +8,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_domain'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     require_once 'domain_model.php';
     $extended_log_description = '';
     $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
 
     // Set/check/lookup expiry date
     if (strtotime($expire)) {
@@ -62,10 +66,17 @@ if (isset($_POST['add_domain'])) {
 
 if (isset($_POST['edit_domain'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     require_once 'domain_model.php';
+
     $domain_id = intval($_POST['domain_id']);
+
+    $client_id = intval(getFieldById('domains', $domain_id, 'domain_client_id'));
+
+    enforceClientAccess();
 
     // Set/check/lookup expiry date
     if (strtotime($expire) && (new DateTime($expire)) > (new DateTime())) {
@@ -147,6 +158,8 @@ if (isset($_POST['edit_domain'])) {
 
 if (isset($_GET['archive_domain'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $domain_id = intval($_GET['archive_domain']);
@@ -156,6 +169,8 @@ if (isset($_GET['archive_domain'])) {
     $row = mysqli_fetch_assoc($sql);
     $domain_name = sanitizeInput($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
@@ -167,11 +182,13 @@ if (isset($_GET['archive_domain'])) {
 
 }
 
-if(isset($_GET['unarchive_domain'])){
+if(isset($_GET['restore_domain'])){
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 2);
 
-    $domain_id = intval($_GET['unarchive_domain']);
+    $domain_id = intval($_GET['restore_domain']);
 
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
@@ -179,9 +196,11 @@ if(isset($_GET['unarchive_domain'])){
     $domain_name = sanitizeInput($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-    logAction("Domain", "Unarchive", "$session_name unarchived domain $domain_name", $client_id, $domain_id);
+    logAction("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
 
     flash_alert("Domain <strong>$domain_name</strong> restored");
 
@@ -190,6 +209,8 @@ if(isset($_GET['unarchive_domain'])){
 }
 
 if (isset($_GET['delete_domain'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 3);
 
@@ -200,6 +221,8 @@ if (isset($_GET['delete_domain'])) {
     $row = mysqli_fetch_assoc($sql);
     $domain_name = sanitizeInput($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
 
@@ -233,6 +256,8 @@ if (isset($_POST['bulk_archive_domains'])) {
             $domain_name = sanitizeInput($row['domain_name']);
             $client_id = intval($row['domain_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
             logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
@@ -248,18 +273,18 @@ if (isset($_POST['bulk_archive_domains'])) {
 
 }
 
-if (isset($_POST['bulk_unarchive_domains'])) {
+if (isset($_POST['bulk_restore_domains'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    enforceUserPermission('module_support', 3);
+    enforceUserPermission('module_support', 2);
 
     if (isset($_POST['domain_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['domain_ids']);
 
-        // Cycle through array and unarchive
+        // Cycle through array and restore
         foreach ($_POST['domain_ids'] as $domain_id) {
 
             $domain_id = intval($domain_id);
@@ -270,15 +295,17 @@ if (isset($_POST['bulk_unarchive_domains'])) {
             $domain_name = sanitizeInput($row['domain_name']);
             $client_id = intval($row['domain_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-            logAction("Domain", "Unarchive", "$session_name unarchived domain $domain_name", $client_id, $domain_id);
+            logAction("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
 
         }
 
-        logAction("Domain", "Bulk Unarchive", "$session_name unarchived $count domain(s)", $client_id);
+        logAction("Domain", "Bulk Restore", "$session_name restored $count domain(s)", $client_id);
 
-        flash_alert("Unarchived <strong>$count</strong> domain(s)");
+        flash_alert("Restored <strong>$count</strong> domain(s)");
 
     }
 
@@ -308,6 +335,8 @@ if (isset($_POST['bulk_delete_domains'])) {
             $domain_name = sanitizeInput($row['domain_name']);
             $client_id = intval($row['domain_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
 
             logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
@@ -325,20 +354,23 @@ if (isset($_POST['bulk_delete_domains'])) {
 
 if (isset($_POST['export_domains_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support');
 
     if ($_POST['client_id']) {
         $client_id = intval($_POST['client_id']);
-        $client_query = "WHERE domain_client_id = $client_id";
+        $client_query = "AND domain_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        enforceClientAccess();
     } else {
         $client_query = '';
         $client_id = 0;
         $file_name_prepend = "$session_company_name-";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM domains $client_query ORDER BY domain_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM domains LEFT JOIN clients ON client_id = domain_client_id WHERE domain_archived_at IS NULL $client_query $access_permission_query ORDER BY domain_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 

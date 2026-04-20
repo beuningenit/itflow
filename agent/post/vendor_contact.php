@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_vendor_contact'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     require_once 'post/user/vendor_contact_model.php';
@@ -27,6 +29,8 @@ if (isset($_POST['add_vendor_contact'])) {
 }
 
 if (isset($_POST['edit_vendor_contact'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
 
@@ -48,7 +52,7 @@ if (isset($_POST['edit_vendor_contact'])) {
 
 if (isset($_POST['bulk_archive_vendor_contacts'])) {
 
-    //validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
 
@@ -79,9 +83,9 @@ if (isset($_POST['bulk_archive_vendor_contacts'])) {
 
 }
 
-if (isset($_POST['bulk_unarchive_vendor_contacts'])) {
+if (isset($_POST['bulk_restore_vendor_contacts'])) {
 
-    //validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
 
@@ -109,13 +113,13 @@ if (isset($_POST['bulk_unarchive_vendor_contacts'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Unarchive", "$session_name unarchived $contact_name", $client_id, $contact_id);
+            logAction("Contact", "Restore", "$session_name restored $contact_name", $client_id, $contact_id);
 
         }
 
-        logAction("Contact", "Bulk Unarchive", "$session_name Unarchived $count contacts", $client_id);
+        logAction("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
-        flash_alert("You unarchived <strong>$count</strong> contact(s)");
+        flash_alert("Restored <strong>$count</strong> contact(s)");
 
     }
 
@@ -178,6 +182,8 @@ if (isset($_POST['bulk_delete_vendor_contacts'])) {
 
 if (isset($_GET['archive_vendor_contact'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     $contact_id = intval($_GET['archive_contact']);
@@ -204,11 +210,13 @@ if (isset($_GET['archive_vendor_contact'])) {
 
 }
 
-if (isset($_GET['unarchive_vendor_contact'])) {
+if (isset($_GET['restore_vendor_contact'])) {
 
-    validateAdminRole();
+    validateCSRFToken($_GET['csrf_token']);
 
-    $contact_id = intval($_GET['unarchive_contact']);
+    enforceUserPermission('module_client', 2);
+
+    $contact_id = intval($_GET['restre_contact']);
 
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
@@ -224,15 +232,17 @@ if (isset($_GET['unarchive_vendor_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Unarchive", "$session_name unarchived contact $contact_name", $client_id, $contact_id);
+    logAction("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> has been Unarchived");
+    flash_alert("Contact <strong>$contact_name</strong> Restored");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_vendor_contact'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_client', 3);
 
@@ -269,6 +279,8 @@ if (isset($_GET['delete_vendor_contact'])) {
 }
 
 if (isset($_POST['export_vendor_contacts_csv'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client');
 
@@ -320,6 +332,8 @@ if (isset($_POST['export_vendor_contacts_csv'])) {
 }
 
 if (isset($_POST["import_vendor_contacts_csv"])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
 
@@ -420,6 +434,8 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
 }
 
 if (isset($_GET['download_vendor_contacts_csv_template'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $client_id = intval($_GET['download_client_contacts_csv_template']);
 

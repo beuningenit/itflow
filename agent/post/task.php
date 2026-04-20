@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_task'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
@@ -29,6 +31,8 @@ if (isset($_POST['add_task'])) {
 }
 
 if (isset($_POST['edit_ticket_task'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
 
@@ -53,6 +57,8 @@ if (isset($_POST['edit_ticket_task'])) {
 }
 
 if (isset($_POST['edit_ticket_template_task'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 2);
 
@@ -97,6 +103,8 @@ if (isset($_GET['delete_task'])) {
 
 if (isset($_GET['complete_task'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $task_id = intval($_GET['complete_task']);
@@ -129,6 +137,8 @@ if (isset($_GET['complete_task'])) {
 
 if (isset($_GET['undo_complete_task'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $task_id = intval($_GET['undo_complete_task']);
@@ -158,6 +168,7 @@ if (isset($_GET['undo_complete_task'])) {
 if (isset($_POST['add_ticket_task_approver'])) {
 
     validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $task_id = intval($_POST['task_id']);
@@ -331,9 +342,10 @@ if (isset($_POST['add_ticket_task_approver'])) {
 if (isset($_GET['approve_ticket_task'])) {
 
     validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
-    $task_id = intval($_GET['approve_task']);
+    $task_id = intval($_GET['approve_ticket_task']);
     $approval_id = intval($_GET['approval_id']);
 
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_scope = 'internal'"));
@@ -398,6 +410,8 @@ if (isset($_GET['delete_ticket_task_approver'])) {
 
 if (isset($_GET['complete_all_tasks'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_GET['complete_all_tasks']);
@@ -421,6 +435,8 @@ if (isset($_GET['complete_all_tasks'])) {
 }
 
 if (isset($_GET['undo_complete_all_tasks'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 2);
 

@@ -141,7 +141,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <td><?php echo $notification_dismissed_at; ?></td>
                     <?php } ?>
                     <?php if(!$dismissed_filter) { ?>
-                    <td class="text-center"><a class="btn btn-secondary btn-sm" href="post.php?dismiss_notification=<?php echo $notification_id; ?>" title="Dismiss"><i class="fas fa-check"></i></a></td>
+                    <td class="text-center"><a class="btn btn-secondary btn-sm" href="post.php?dismiss_notification=<?= $notification_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Dismiss"><i class="fas fa-check"></i></a></td>
                     <?php } ?>
                 </tr>
 

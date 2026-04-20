@@ -8,6 +8,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_id = $cate
 
 $row = mysqli_fetch_assoc($sql);
 $category_name = nullable_htmlentities($row['category_name']);
+$category_description = nullable_htmlentities($row['category_description']);
 $category_color = nullable_htmlentities($row['category_color']);
 $category_type = nullable_htmlentities($row['category_type']);
 
@@ -21,6 +22,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="category_id" value="<?php echo $category_id; ?>">
     <input type="hidden" name="type" value="<?php echo $category_type; ?>">
     <div class="modal-body">
@@ -42,6 +44,16 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                 </div>
                 <input type="color" class="form-control col-3" name="color" value="<?php echo $category_color; ?>" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
+                </div>
+                <input type="text" class="form-control" name="description" placeholder="Enter a description" maxlength="200" value="<?= $category_description ?>">
             </div>
         </div>
 

@@ -16,12 +16,13 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <!-- Hidden/System fields -->
     <?php if ($client_id) { ?>
-        <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
     <?php } ?>
     <?php if ($project_id) { ?>
-        <input type="hidden" name="project" value="<?php echo $project_id; ?>">
+        <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -127,7 +128,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 </div>
-                                <select class="form-control select2" name="category">
+                                <select class="form-control select2" name="category_id">
                                     <option value="0">- Not Categorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -188,7 +189,7 @@ ob_start();
 
             <!-- Ticket client/contact -->
             <?php if ($contact_id) { ?>
-                <input type="hidden" name="contact" value="<?php echo $contact_id; ?>">
+                <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
             <?php } else { ?>
                 <div class="tab-pane fade" id="pills-add-contacts">
 
@@ -198,7 +199,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="client" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
+                            <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
                                 <option value="">- Client -</option>
                                 <?php
 
@@ -220,7 +221,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="contact" id="contactSelect">
+                            <select class="form-control select2" name="contact_id" id="contactSelect">
                             </select>
                         </div>
                     </div>
@@ -237,7 +238,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
-                        <select class="form-control select2" name="asset" id="assetSelect">
+                        <select class="form-control select2" name="asset_id" id="assetSelect">
                         </select>
                     </div>
                 </div>
@@ -248,7 +249,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         </div>
-                        <select class="form-control select2" name="location" id="locationSelect">
+                        <select class="form-control select2" name="location_id" id="locationSelect">
                         </select>
                     </div>
                 </div>
@@ -262,7 +263,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                 </div>
-                                <select class="form-control select2" name="vendor" id="vendorSelect">
+                                <select class="form-control select2" name="vendor_id" id="vendorSelect">
                                 </select>
                             </div>
                         </div>

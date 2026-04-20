@@ -30,43 +30,84 @@ if (isset($_GET['calendar_id'])) {
 
     <div class="col-md-3">
         <div class="card">
-            <div class="card-header py-2">
-                <h3 class="card-title mt-1">Calendars</h3>
+            <div class="card-header bg-dark">
+                <h3 class="card-title">Calendars</h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-dark btn-sm ajax-modal" data-modal-url="modals/calendar/calendar_add.php"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/calendar/calendar_add.php"><i class="fas fa-plus" title="New Calendar"></i></button>
                 </div>
             </div>
             <div class="card-body">
+                <?php
+                $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $calendar_id = intval($row['calendar_id']);
+                    $calendar_name = nullable_htmlentities($row['calendar_name']);
+                    $calendar_color = nullable_htmlentities($row['calendar_color']);
+                ?>
+                <div class="form-group d-flex align-items-center">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:<?= $calendar_color ?>;"></i><?= $calendar_name ?>
 
-                <form>
-                    <?php
-                    $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $calendar_id = intval($row['calendar_id']);
-                        $calendar_name = nullable_htmlentities($row['calendar_name']);
-                        $calendar_color = nullable_htmlentities($row['calendar_color']);
-                    ?>
-                    <div class="form-group">
-                        <i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>;"></i><?php echo $calendar_name; ?>
-                        <button type="button" class="btn btn-link btn-sm float-right ajax-modal"
-                            data-modal-url="modals/calendar/calendar_edit.php?id=<?= $calendar_id ?>">
-                            <i class="fas fa-fw fa-pencil-alt text-secondary"></i>
+                    <div class="dropdown dropright ml-auto">
+                        <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
                         </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url="modals/calendar/calendar_edit.php?id=<?= $calendar_id ?>">
+                                <i class="fas fa-fw fa-pencil-alt mr-2"></i>Rename
+                            </a>
+                            <?php if ($session_user_role == 3) { ?>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_calendar=<?= $calendar_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </a>
+                            <?php } ?>
+                        </div>
                     </div>
-                    <?php
-                    }
-                    ?>
-                </form>
+                </div>
+                <?php
+                }
+                ?>
+
             </div>
         </div>
         <div class="card">
-            <div class="card-header py-2">
-                <h3 class="card-title mt-1">System Calendars</h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-dark btn-sm"><i class="fas fa-eye"></i></button>
-                </div>
+            <div class="card-header bg-dark">
+                <h3 class="card-title">Built-in</h3>
             </div>
             <div class="card-body">
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:blue;"></i>Invoices
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:purple;"></i>Quotes
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:red;"></i>Tickets (Created)
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:grey;"></i>Recurring Tickets
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:grey;"></i>Tickets (Scheduled)
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:brown;"></i>Vendors
+                </div>
+
+                <?php if (!isset($_GET['client_id'])) { ?>
+
+                <div class="form-group">
+                    <i class="fas fa-fw fa-circle mr-2" style="color:brown;"></i>Clients
+                </div>
+
+                <?php } ?>
+
             </div>
         </div>
     </div>
@@ -137,6 +178,10 @@ while ($row = mysqli_fetch_assoc($sql)) {
         height: '90vh',
 
         selectMirror: true,
+        eventDidMount: function(info) {
+            // Always show full title when hovering
+            info.el.setAttribute('title', info.event.title);
+        },
         eventClick: function(editEvent) {
             var eventId = editEvent.event.id;
             var $link = $('<a>', {

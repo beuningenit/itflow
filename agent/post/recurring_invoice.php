@@ -8,6 +8,10 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_invoice_recurring'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
     $invoice_id = intval($_POST['invoice_id']);
     $recurring_invoice_frequency = sanitizeInput($_POST['frequency']);
 
@@ -22,6 +26,8 @@ if (isset($_POST['add_invoice_recurring'])) {
     $invoice_note = sanitizeInput($row['invoice_note']);
     $client_id = intval($row['invoice_client_id']);
     $category_id = intval($row['invoice_category_id']);
+
+    enforceClientAccess();
 
     // Atomically increment and get the new recurring_invoice number
     mysqli_query($mysqli, "
@@ -53,7 +59,7 @@ if (isset($_POST['add_invoice_recurring'])) {
         $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_recurring_invoice_id = $recurring_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO recurring_invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_recurring_invoice_id = $recurring_invoice_id");
     }
 
     logAction("Recurring Invoice", "Create", "$session_name created recurring Invoice from Invoice $invoice_prefix$invoice_number", $client_id, $recurring_invoice_id);
@@ -66,11 +72,17 @@ if (isset($_POST['add_invoice_recurring'])) {
 
 if (isset($_POST['add_recurring_invoice'])) {
 
-    $client_id = intval($_POST['client']);
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
+    $client_id = intval($_POST['client_id']);
     $frequency = sanitizeInput($_POST['frequency']);
     $start_date = sanitizeInput($_POST['start_date']);
     $category = intval($_POST['category']);
     $scope = sanitizeInput($_POST['scope']);
+
+    enforceClientAccess();
 
     // Atomically increment and get the new recurring_invoice number
     mysqli_query($mysqli, "
@@ -99,6 +111,10 @@ if (isset($_POST['add_recurring_invoice'])) {
 
 if (isset($_POST['edit_recurring_invoice'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
     $frequency = sanitizeInput($_POST['frequency']);
     $next_date = sanitizeInput($_POST['next_date']);
@@ -114,8 +130,10 @@ if (isset($_POST['edit_recurring_invoice'])) {
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $client_id = intval($row['recurring_invoice_client_id']);
 
+    enforceClientAccess();
+
     //Calculate new total
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     $recurring_invoice_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -137,6 +155,10 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
 if (isset($_GET['delete_recurring_invoice'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_sales', 3);
+
     $recurring_invoice_id = intval($_GET['delete_recurring_invoice']);
 
     // Get Recurring Invoice Details and Client ID for Logging
@@ -147,13 +169,15 @@ if (isset($_GET['delete_recurring_invoice'])) {
     $recurring_invoice_scope = sanitizeInput($row['recurring_invoice_scope']);
     $client_id = intval($row['recurring_invoice_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"DELETE FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
 
     //Delete Items Associated with the Recurring
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     while($row = mysqli_fetch_assoc($sql)) {
         $item_id = intval($row['item_id']);
-        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+        mysqli_query($mysqli,"DELETE FROM recurring_invoice_items WHERE item_id = $item_id");
     }
 
     //Delete History Associated with the Invoice
@@ -173,6 +197,10 @@ if (isset($_GET['delete_recurring_invoice'])) {
 
 if (isset($_POST['add_recurring_invoice_item'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
@@ -180,6 +208,10 @@ if (isset($_POST['add_recurring_invoice_item'])) {
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
     $item_order = intval($_POST['item_order']);
+
+    $client_id = intval(getFieldById('recurring_invoices', $recurring_invoice_id, 'recurring_invoice_client_id'));
+
+    enforceClientAccess();
 
     $subtotal = $price * $qty;
 
@@ -194,7 +226,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_recurring_invoice_id = $recurring_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_recurring_invoice_id = $recurring_invoice_id");
 
 
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
@@ -205,7 +237,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
     $client_id = intval($row['recurring_invoice_client_id']);
 
     //add up all the items
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     $recurring_invoice_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -223,7 +255,71 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
 }
 
+if (isset($_POST['edit_recurring_invoice_item'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
+    $item_id = intval($_POST['item_id']);
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax_id = intval($_POST['tax_id']);
+    $product_id = intval($_POST['product_id']);
+
+    $subtotal = $price * $qty;
+
+    if ($tax_id > 0) {
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_assoc($sql);
+        $tax_percent = floatval($row['tax_percent']);
+        $tax_amount = $subtotal * $tax_percent / 100;
+    } else {
+        $tax_amount = 0;
+    }
+
+    $total = $subtotal + $tax_amount;
+
+    // Get Recurring_invoice_id from item_id
+    $sql = mysqli_query($mysqli,"SELECT item_recurring_invoice_id FROM recurring_invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_assoc($sql);
+    $recurring_invoice_id = intval($row['item_recurring_invoice_id']);
+
+    //Get Discount Amount
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $row = mysqli_fetch_assoc($sql);
+    $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $recurring_invoice_number = intval($row['recurring_invoice_number']);
+    $client_id = intval($row['recurring_invoice_client_id']);
+    $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"UPDATE recurring_invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
+
+    //Update Invoice Balances by tallying up invoice items
+    $sql_recurring_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_invoice_total FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    $row = mysqli_fetch_assoc($sql_recurring_invoice_total);
+    $new_recurring_invoice_amount = floatval($row['recurring_invoice_total']) - $recurring_invoice_discount;
+
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_amount = $new_recurring_invoice_amount WHERE recurring_invoice_id = $recurring_invoice_id");
+
+    // Logging
+    logAction("Recurring Invoice", "Edit", "$session_name edited item $name on recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
+
+    flash_alert("Item <strong>$name</strong> updated");
+
+    redirect();
+
+}
+
 if (isset($_POST['recurring_invoice_note'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
 
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
     $note = sanitizeInput($_POST['note']);
@@ -234,6 +330,8 @@ if (isset($_POST['recurring_invoice_note'])) {
     $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $client_id = intval($row['recurring_invoice_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_note = '$note' WHERE recurring_invoice_id = $recurring_invoice_id");
 
@@ -247,9 +345,13 @@ if (isset($_POST['recurring_invoice_note'])) {
 
 if (isset($_GET['delete_recurring_invoice_item'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
     $item_id = intval($_GET['delete_recurring_invoice_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_id = intval($row['item_recurring_invoice_id']);
     $item_name = sanitizeInput($row['item_name']);
@@ -263,11 +365,13 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $client_id = intval($row['recurring_invoice_client_id']);
 
+    enforceClientAccess();
+
     $new_recurring_invoice_amount = floatval($row['recurring_invoice_amount']) - $item_total;
 
     mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_amount = $new_recurring_invoice_amount WHERE recurring_invoice_id = $recurring_invoice_id");
 
-    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    mysqli_query($mysqli,"DELETE FROM recurring_invoice_items WHERE item_id = $item_id");
 
     logAction("Recurring Invoice", "Edit", "$session_name removed item $item_name from recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id);
 
@@ -278,6 +382,10 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
 }
 
 if (isset($_GET['force_recurring'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
 
     $recurring_invoice_id = intval($_GET['force_recurring']);
 
@@ -298,6 +406,8 @@ if (isset($_GET['force_recurring'])) {
     $client_id = intval($row['recurring_invoice_client_id']);
     $client_net_terms = intval($row['client_net_terms']);
 
+    enforceClientAccess();
+
     // Atomically increment and get the new invoice number
     mysqli_query($mysqli, "
         UPDATE settings
@@ -317,7 +427,7 @@ if (isset($_GET['force_recurring'])) {
     $new_invoice_id = mysqli_insert_id($mysqli);
 
     //Copy Items from original invoice to new invoice
-    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
 
     while($row = mysqli_fetch_assoc($sql_invoice_items)) {
         $item_id = intval($row['item_id']);
@@ -342,7 +452,7 @@ if (isset($_GET['force_recurring'])) {
         $item_total = $item_subtotal + $item_tax_amount;
 
         //Update Recurring Items with new tax
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_tax = $item_tax_amount, item_total = $item_total, item_tax_id = $tax_id, item_order = $item_order WHERE item_id = $item_id");
+        mysqli_query($mysqli,"UPDATE recurring_invoice_items SET item_tax = $item_tax_amount, item_total = $item_total, item_tax_id = $tax_id, item_order = $item_order WHERE item_id = $item_id");
 
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax_amount, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
     }
@@ -350,7 +460,7 @@ if (isset($_GET['force_recurring'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id");
 
     //Update Recurring Balances by tallying up recurring items also update recurring dates
-    $sql_recurring_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_invoice_total FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    $sql_recurring_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_invoice_total FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql_recurring_invoice_total);
     $new_recurring_invoice_amount = floatval($row['recurring_invoice_total']) - $recurring_invoice_discount_amount;
 
@@ -440,6 +550,10 @@ if (isset($_GET['force_recurring'])) {
 
 if (isset($_POST['set_recurring_payment'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
     $saved_payment_id = intval($_POST['saved_payment_id']);
 
@@ -451,6 +565,8 @@ if (isset($_POST['set_recurring_payment'])) {
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $recurring_invoice_currency_code = sanitizeInput($row['recurring_invoice_currency_code']);
     $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
+
+    enforceClientAccess();
 
     if ($saved_payment_id) {
 
@@ -491,7 +607,13 @@ if (isset($_POST['set_recurring_payment'])) {
 
 if (isset($_POST['export_client_recurring_invoice_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales');
+
     $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
@@ -539,6 +661,10 @@ if (isset($_POST['export_client_recurring_invoice_csv'])) {
 
 if (isset($_GET['recurring_invoice_email_notify'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
     $recurring_invoice_email_notify = intval($_GET['recurring_invoice_email_notify']);
     $recurring_invoice_id = intval($_GET['recurring_invoice_id']);
 
@@ -547,6 +673,8 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
     $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $client_id = intval($row['recurring_invoice_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_email_notify = $recurring_invoice_email_notify WHERE recurring_invoice_id = $recurring_invoice_id");
 

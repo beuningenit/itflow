@@ -60,8 +60,18 @@ if (!empty($document_id)) {
 
         $document_version_id = mysqli_insert_id($mysqli);
 
-        // 3) Variable assignment from POST (uses	trigger you already have)
+        // 3) Variable assignment from POST
         // This should set: $name, $description, $content (raw html), $folder, etc.
+
+        // Fetch current doc data (fresh)
+        $document_row = mysqli_fetch_assoc(mysqli_query($mysqli, "
+        SELECT * FROM documents
+        WHERE document_client_id = $client_id
+           AND document_id = $document_id
+        LIMIT 1
+        "));
+
+        // Assign variables from POST or fallback to DB
         require_once 'document_model.php';
 
         // Process NEW HTML content: save base64 images to /uploads/documents/<document_id>/

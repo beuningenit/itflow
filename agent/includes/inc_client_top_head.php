@@ -1,4 +1,4 @@
-<?php $show_add_credit = 0; // Remove once credits is added hides the button ?> 
+<?php $show_add_credit = 0; // Remove once credits is added hides the button ?>
 
 <div class="card d-print-none">
     <div class="card-header pb-1 pt-2 px-3">
@@ -13,6 +13,12 @@
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
+                    <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_v2.php?client_id=<?= $client_id ?>" data-modal-size="lg">
+                            <i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket
+                        </a>
+                    <?php } ?>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="modals/client/client_edit.php?id=<?= $client_id ?>">
                         <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
@@ -39,8 +45,8 @@
                         </a>
                     <?php } else { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-primary confirm-link" href="post.php?undo_archive_client=<?php echo $client_id; ?>">
-                            <i class="fas fa-fw fa-archive mr-2"></i>Unarchive Client
+                        <a class="dropdown-item text-primary confirm-link" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                            <i class="fas fa-fw fa-archive mr-2"></i>Restore Client
                         </a>
                     <?php } ?>
 
@@ -59,7 +65,7 @@
 </div>
 
 <div class="collapse <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "show"; } ?>" id="clientHeader">
-   
+
     <div class="card-group mb-3">
         <div class="card card-body px-3 py-2">
             <h5>Primary Location</h5>
@@ -129,7 +135,7 @@
         </div>
 
         <?php if (lookupUserPermission("module_financial") >= 1 && $config_module_enable_accounting == 1) { ?>
-                    
+
         <div class="card card-body px-3 py-2">
             <h5>Billing</h5>
             <div class="ml-1 text-secondary">Hourly Rate
@@ -141,7 +147,7 @@
             <div class="ml-1 mt-1 text-secondary">Balance
                 <span class="<?php if ($balance > 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></span>
             </div>
-            <?php /* Credit Not Ready 2025-08-27 JQ 
+            <?php /* Credit Not Ready 2025-08-27 JQ
             if ($credit_balance) { ?>
             <div class="ml-1 mt-1 text-secondary">Credit
                 <span class="text-success float-right"><?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?></span>

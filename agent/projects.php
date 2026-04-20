@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </form>
         <hr>
-        <div class="table-responsive-sm">
+        <div class="table-responsive">
             <table class="table table-striped table-hover table-borderless">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                 <tr>
@@ -281,16 +281,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php if (!empty($project_completed_at) && lookupUserPermission("module_support" >= 2)) { ?>
                                         <div class="dropdown-divider"></div>
                                         <?php if (empty($project_archived_at)) { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?php echo $project_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_project=<?php echo $project_id; ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <?php if (lookupUserPermission("module_support" >= 3)) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Delete
                                                 </a>
                                             <?php } ?>

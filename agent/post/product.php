@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_product'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     require_once 'product_model.php';
@@ -27,6 +29,8 @@ if (isset($_POST['add_product'])) {
 
 if (isset($_POST['edit_product'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     require_once 'product_model.php';
@@ -45,6 +49,8 @@ if (isset($_POST['edit_product'])) {
 
 if (isset($_GET['archive_product'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $product_id = intval($_GET['archive_product']);
@@ -61,17 +67,19 @@ if (isset($_GET['archive_product'])) {
 
 }
 
-if (isset($_GET['unarchive_product'])) {
+if (isset($_GET['restore_product'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 
-    $product_id = intval($_GET['unarchive_product']);
+    $product_id = intval($_GET['restore_product']);
 
     $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
-    logAction("Product", "Unarchive", "$session_name unarchived product $product_name", 0, $product_id);
+    logAction("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
 
     flash_alert("Product <strong>$product_name</strong> restored");
 
@@ -80,7 +88,9 @@ if (isset($_GET['unarchive_product'])) {
 }
 
 if (isset($_GET['delete_product'])) {
-    
+
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 3);
 
     $product_id = intval($_GET['delete_product']);
@@ -99,6 +109,8 @@ if (isset($_GET['delete_product'])) {
 }
 
 if (isset($_POST['bulk_edit_product_category'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 
@@ -135,7 +147,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
 }
 
 if (isset($_POST['bulk_archive_products'])) {
-    
+
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
@@ -166,10 +178,10 @@ if (isset($_POST['bulk_archive_products'])) {
 
 }
 
-if (isset($_POST['bulk_unarchive_products'])) {
+if (isset($_POST['bulk_restore_products'])) {
 
     validateCSRFToken($_POST['csrf_token']);
-    
+
     enforceUserPermission('module_sales', 2);
 
     if (isset($_POST['product_ids'])) {
@@ -185,13 +197,13 @@ if (isset($_POST['bulk_unarchive_products'])) {
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
-            logAction("Product", "Unarchive", "$session_name unarchived product $product_name", 0, $product_id);
+            logAction("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
 
         }
 
-        logAction("Product", "Bulk Unarchive", "$session_name unarchived $count product(s)");
+        logAction("Product", "Bulk Restore", "$session_name restored $count product(s)");
 
-        flash_alert("Unarchived <strong>$count</strong> product(s)");
+        flash_alert("Restored <strong>$count</strong> product(s)");
 
     }
 
@@ -202,9 +214,9 @@ if (isset($_POST['bulk_unarchive_products'])) {
 if (isset($_POST['bulk_delete_products'])) {
 
     validateCSRFToken($_POST['csrf_token']);
-    
+
     enforceUserPermission('module_sales', 3);
-    
+
 
     if (isset($_POST['product_ids'])) {
 

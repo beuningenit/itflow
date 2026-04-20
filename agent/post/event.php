@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_calendar'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $name = sanitizeInput($_POST['name']);
     $color = sanitizeInput($_POST['color']);
 
@@ -25,6 +27,8 @@ if (isset($_POST['add_calendar'])) {
 
 if (isset($_POST['edit_calendar'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $calendar_id = intval($_POST['calendar_id']);
     $name = sanitizeInput($_POST['name']);
     $color = sanitizeInput($_POST['color']);
@@ -39,11 +43,43 @@ if (isset($_POST['edit_calendar'])) {
 
 }
 
+if (isset($_GET['delete_calendar'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    $calendar_id = intval($_GET['delete_calendar']);
+
+    // Get Calendar Name
+    $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE calendar_id = $calendar_id");
+    $row = mysqli_fetch_assoc($sql);
+    $calendar_name = sanitizeInput($row['calendar_name']);
+
+    // Delete Calendar
+    mysqli_query($mysqli,"DELETE FROM calendars WHERE calendar_id = $calendar_id");
+
+    // Delete Events
+    mysqli_query($mysqli,"DELETE FROM calendar_events WHERE event_calendar_id = $calendar_id");
+
+    logAction("Calendar", "Delete", "$session_name deleted calendar $calendar_name and associated events");
+
+    flash_alert("Calendar <strong>$calendar_name</strong> deleted", 'error');
+
+    redirect();
+
+}
+
 if (isset($_POST['add_event'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     require_once 'event_model.php';
 
-    mysqli_query($mysqli,"INSERT INTO calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client");
+    // Don't Enforce Client Access if Calendar event doesn't have a client
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
+    mysqli_query($mysqli,"INSERT INTO calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client_id");
 
     $event_id = mysqli_insert_id($mysqli);
 
@@ -53,7 +89,7 @@ if (isset($_POST['add_event'])) {
     //If email is checked
     if ($email_event == 1) {
 
-        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client");
+        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client_id");
         $row = mysqli_fetch_assoc($sql_client);
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
@@ -93,7 +129,7 @@ if (isset($_POST['add_event'])) {
 
         // Logging for email (success/fail)
         if ($mail === true) {
-            logAction("Calendar Event", "Email", "$session_name emailed event $title to $contact_name from client $client_name", $client, $event_id);
+            logAction("Calendar Event", "Email", "$session_name emailed event $title to $contact_name from client $client_name", $client_id, $event_id);
         } else {
             appNotify("Mail", "Failed to send email to $contact_email");
             logAction("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
@@ -101,7 +137,7 @@ if (isset($_POST['add_event'])) {
 
     } // End mail IF
 
-    logAction("Calendar Event", "Create", "$session_name created a calendar event titled $title in calendar $calendar_name", $client, $event_id);
+    logAction("Calendar Event", "Create", "$session_name created a calendar event titled $title in calendar $calendar_name", $client_id, $event_id);
 
     flash_alert("Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>");
 
@@ -111,16 +147,23 @@ if (isset($_POST['add_event'])) {
 
 if (isset($_POST['edit_event'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'event_model.php';
+
+    // Don't Enforce Client Access if Calendar event doesn't have a client
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     $event_id = intval($_POST['event_id']);
 
-    mysqli_query($mysqli,"UPDATE calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id");
+    mysqli_query($mysqli,"UPDATE calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client_id WHERE event_id = $event_id");
 
     //If email is checked
     if ($email_event == 1) {
 
-        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client");
+        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client_id");
         $row = mysqli_fetch_assoc($sql_client);
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
@@ -160,7 +203,7 @@ if (isset($_POST['edit_event'])) {
         $mail = addToMailQueue($data);
         // Logging for email (success/fail)
         if ($mail === true) {
-            logAction("Calendar Event", "Email", "$session_name Emailed modified event $title to $contact_name email $contact_email", $client, $event_id);
+            logAction("Calendar Event", "Email", "$session_name Emailed modified event $title to $contact_name email $contact_email", $client_id, $event_id);
         } else {
             appNotify("Mail", "Failed to send email to $contact_email");
             logAction("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
@@ -168,7 +211,7 @@ if (isset($_POST['edit_event'])) {
 
     } // End mail IF
 
-    logAction("Calendar Event", "Edit", "$session_name edited calendar event $title", $client, $event_id);
+    logAction("Calendar Event", "Edit", "$session_name edited calendar event $title", $client_id, $event_id);
 
     flash_alert("Calendar event titled <strong>$title</strong> edited");
 
@@ -178,6 +221,8 @@ if (isset($_POST['edit_event'])) {
 
 if (isset($_GET['delete_event'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     $event_id = intval($_GET['delete_event']);
 
     // Get Event Title
@@ -185,6 +230,11 @@ if (isset($_GET['delete_event'])) {
     $row = mysqli_fetch_assoc($sql);
     $event_title = sanitizeInput($row['event_title']);
     $client_id = intval($row['event_client_id']);
+
+    // Don't Enforce Client Access if Calendar event doesn't have a client
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     mysqli_query($mysqli,"DELETE FROM calendar_events WHERE event_id = $event_id");
 

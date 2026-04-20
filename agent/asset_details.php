@@ -452,13 +452,13 @@ if (isset($_GET['asset_id'])) {
 
                 <div class="card card-dark">
                     <div class="card-header py-2">
-                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i>Interfaces</h3>
+                        <h3 class="card-title mt-1"><i class="fa fa-fw fa-ethernet mr-2"></i>Interfaces</h3>
                         <div class="card-tools">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
+                                <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
                                     <i class="fas fa-plus mr-2"></i>New Interface
                                 </button>
-                                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                                <button type="button" class="btn btn-tool dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addMultipleAssetInterfacesModal">
                                         <i class="fa fa-fw fa-check-double mr-2"></i>Add Multiple
@@ -474,7 +474,7 @@ if (isset($_GET['asset_id'])) {
                                 </div>
 
                                 <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <button class="btn btn-tool dropdown-toggle" type="button" data-toggle="dropdown">
                                         <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
@@ -504,114 +504,115 @@ if (isset($_GET['asset_id'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <form id="bulkActions" action="post.php" method="post">
-                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                            <div class="table-responsive-sm">
-                                <table class="table table-striped table-borderless table-hover table-sm">
-                                    <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
-                                        <tr>
-                                            <td class="bg-light pr-0">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
-                                                </div>
-                                            </td>
-                                            <th>Name / Port</th>
-                                            <th>Type</th>
-                                            <th>MAC</th>
-                                            <th>IP</th>
-                                            <th>Network</th>
-                                            <th>Connected To</th>
-                                            <th class="text-center">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($sql_related_interfaces)) { ?>
-                                        <?php
-                                            $interface_id       = intval($row['interface_id']);
-                                            $interface_name     = nullable_htmlentities($row['interface_name']);
-                                            $interface_description = nullable_htmlentities($row['interface_description']);
-                                            $interface_type     = nullable_htmlentities($row['interface_type']);
-                                            $interface_mac      = nullable_htmlentities($row['interface_mac']);
-                                            $interface_ip       = nullable_htmlentities($row['interface_ip']);
-                                            $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
-                                            $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
-                                            $interface_primary  = intval($row['interface_primary']);
-                                            $network_id         = intval($row['network_id']);
-                                            $network_name       = nullable_htmlentities($row['network_name']);
-                                            $interface_notes    = nullable_htmlentities($row['interface_notes']);
+                    <form id="bulkActions" action="post.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <div class="table-responsive-sm">
+                            <table class="table table-striped table-borderless table-hover table-sm">
+                                <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
+                                    <tr>
+                                        <td class="bg-light checkbox-column">
+                                            <div class="form-check">
+                                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
+                                            </div>
+                                        </td>
+                                        <th>Name / Port</th>
+                                        <th>Type</th>
+                                        <th>Network</th>
+                                        <th>IP</th>
+                                        <th>MAC</th>
+                                        <th>Connected To</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($sql_related_interfaces)) { ?>
+                                    <?php
+                                        $interface_id       = intval($row['interface_id']);
+                                        $interface_name     = nullable_htmlentities($row['interface_name']);
+                                        $interface_description = nullable_htmlentities($row['interface_description']);
+                                        $interface_type     = nullable_htmlentities($row['interface_type']);
+                                        $interface_mac      = nullable_htmlentities($row['interface_mac']);
+                                        $interface_ip       = nullable_htmlentities($row['interface_ip']);
+                                        $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
+                                        $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
+                                        $interface_primary  = intval($row['interface_primary']);
+                                        $network_id         = intval($row['network_id']);
+                                        $network_name       = nullable_htmlentities($row['network_name']);
+                                        $interface_notes    = nullable_htmlentities($row['interface_notes']);
 
-                                            // Prepare display text
-                                            $interface_mac_display = $interface_mac ?: '-';
-                                            $interface_ip_display  = $interface_ip ?: '-';
-                                            $interface_type_display = $interface_type ?: '-';
-                                            $network_name_display  = $network_name
-                                                ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name"
-                                                : '-';
+                                        // Prepare display text
+                                        $interface_mac_display = $interface_mac ?: '-';
+                                        $interface_ip_display  = $interface_ip ?: '-';
+                                        $interface_type_display = $interface_type ?: '-';
+                                        $network_name_display  = $network_name
+                                            ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name"
+                                            : '-';
 
-                                            // Connected interface details
-                                            $connected_asset_id = intval($row['connected_asset_id']);
-                                            $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
-                                            $connected_asset_type = nullable_htmlentities($row['connected_asset_type']);
-                                            $connected_asset_icon = getAssetIcon($connected_asset_type);
-                                            $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
+                                        // Connected interface details
+                                        $connected_asset_id = intval($row['connected_asset_id']);
+                                        $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
+                                        $connected_asset_type = nullable_htmlentities($row['connected_asset_type']);
+                                        $connected_asset_icon = getAssetIcon($connected_asset_type);
+                                        $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
 
 
-                                            // Show either "-" or "AssetName - Port"
-                                            if ($connected_asset_name) {
-                                                $connected_to_display = "<a class='ajax-modal' href='#'
-                                                    data-modal-size='lg'
-                                                    data-modal-url='modals/asset/asset_details.php?id=$connected_asset_id'>
-                                                    <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
-                                                </a>";
-                                            } else {
-                                                $connected_to_display = "-";
-                                            }
-                                        ?>
-                                        <tr>
-                                            <td class="pr-0 bg-light">
-                                                <div class="form-check">
-                                                    <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
-                                                <a class="text-dark ajax-modal" href="#"
-                                                    data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
-                                                    <?= $interface_name ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
-                                                </a>
-                                            </td>
-                                            <td><?= $interface_type_display; ?></td>
-                                            <td><?= $interface_mac_display; ?></td>
-                                            <td><?= $interface_ip_display; ?></td>
-                                            <td><?= $network_name_display; ?></td>
-                                            <td><?= $connected_to_display; ?></td>
-                                            <td>
-                                                <div class="dropdown dropleft text-center">
-                                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item ajax-modal" href="#"
-                                                            data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
-                                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        // Show either "-" or "AssetName - Port"
+                                        if ($connected_asset_name) {
+                                            $connected_to_display = "<a class='ajax-modal' href='#'
+                                                data-modal-size='lg'
+                                                data-modal-url='modals/asset/asset_details.php?id=$connected_asset_id'>
+                                                <strong><i class='fa fa-fw text-dark fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
+                                            </a>";
+                                        } else {
+                                            $connected_to_display = "-";
+                                        }
+                                    ?>
+                                    <tr>
+                                        <td class="bg-light checkbox-column">
+                                            <div class="form-check">
+                                                <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
+                                            <a class="text-dark ajax-modal" href="#"
+                                                data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                                <?= $interface_name ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
+                                            </a>
+                                        </td>
+                                        <td><?= $interface_type_display; ?></td>
+                                        <td><?= $network_name_display; ?></td>
+                                        <td>
+                                            <?= $interface_ip_display; ?>
+                                            <div><small class="text-secondary"><?= $interface_ipv6 ?></small></div>
+                                        </td>
+                                        <td><?= $interface_mac_display; ?></td>
+                                        <td><?= $connected_to_display; ?></td>
+                                        <td>
+                                            <div class="dropdown dropleft text-center">
+                                                <button class="btn btn-tool btn-sm" type="button" data-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item ajax-modal" href="#"
+                                                        data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                    </a>
+                                                    <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?= $interface_id; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>">
+                                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                         </a>
-                                                        <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
-                                                            <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?= $interface_id; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>">
-                                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                            </a>
-                                                        <?php endif; ?>
-                                                    </div>
+                                                    <?php endif; ?>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </form>
-                    </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="card card-dark <?php if ($credential_count == 0) { echo "d-none"; } ?>">
@@ -716,12 +717,12 @@ if (isset($_GET['asset_id'])) {
                                                         <i class="fas fa-fw fa-share-alt mr-2"></i>Share
                                                     </a>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?= $asset_id; ?>&credential_id=<?= $credential_id; ?>">
+                                                    <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?= $asset_id; ?>&credential_id=<?= $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
                                                     </a>
                                                     <?php if ($session_user_role == 3) { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?= $credential_id; ?>">
+                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?= $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                         </a>
                                                     <?php } ?>
@@ -813,7 +814,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $software_license_type; ?></td>
                                         <td><?= "$seat_count / $software_seats"; ?></td>
                                         <td class="text-center">
-                                            <a href="post.php?unlink_software_from_asset&asset_id=<?= $asset_id; ?>&software_id=<?= $software_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                            <a href="post.php?unlink_software_from_asset&asset_id=<?= $asset_id; ?>&software_id=<?= $software_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                         </td>
                                     </tr>
 
@@ -879,7 +880,7 @@ if (isset($_GET['asset_id'])) {
                                                 data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                                 <i class="fas fa-fw fa-eye"></i>
                                             </a>
-                                            <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                            <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                         </td>
                                     </tr>
 
@@ -970,7 +971,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><a class="text-dark" href="<?= "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?= "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
                                         <td><?= $file_created_at; ?></td>
                                         <td class="text-center">
-                                            <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id; ?>&file_id=<?= $file_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                            <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id; ?>&file_id=<?= $file_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                         </td>
                                     </tr>
 
@@ -1193,7 +1194,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $service_category; ?></td>
                                         <td><?= $service_importance; ?></td>
                                         <td class="text-center">
-                                            <a href="post.php?unlink_service_from_asset&asset_id=<?= $asset_id; ?>&service_id=<?= $service_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                            <a href="post.php?unlink_service_from_asset&asset_id=<?= $asset_id; ?>&service_id=<?= $service_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                         </td>
                                     </tr>
 
@@ -1230,6 +1231,7 @@ if (isset($_GET['asset_id'])) {
                 "ajax.php",
                 {
                     asset_set_notes: 'TRUE',
+                    csrf_token: '<?= $_SESSION['csrf_token'] ?>',
                     asset_id: asset_id,
                     notes: notes
                 }

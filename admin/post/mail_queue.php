@@ -4,6 +4,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['send_failed_mail'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     $email_id = intval($_GET['send_failed_mail']);
 
     mysqli_query($mysqli,"UPDATE email_queue SET email_status = 0, email_attempts = 3 WHERE email_id = $email_id");
@@ -17,6 +19,8 @@ if (isset($_GET['send_failed_mail'])) {
 }
 
 if (isset($_GET['cancel_mail'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $email_id = intval($_GET['cancel_mail']);
 

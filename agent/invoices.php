@@ -162,10 +162,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
         <div class="card-tools">
             <div class="btn-group">
+                <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                 <button type="button" class="btn btn-primary ajax-modal"
                     data-modal-url="modals/invoice/invoice_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus mr-2"></i>New Invoice
                 </button>
+                <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark ajax-modal" href="#"
@@ -255,11 +257,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <hr>
         <form id="bulkActions" action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-            <div class="table-responsive-sm">
+            <div class="table-responsive">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                         <tr>
-                            <td class="bg-light pr-0">
+                            <td class="bg-light checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
@@ -370,7 +372,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="pr-0 bg-light">
+                            <td class="bg-light checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="invoice_ids[]" value="<?php echo $invoice_id ?>">
                                 </div>
@@ -421,18 +423,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php if (!empty($config_smtp_host)) { ?>
-                                            <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                            <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                             </a>
                                             <div class="dropdown-divider"></div>
                                         <?php } ?>
                                         <?php if ($invoice_status == 'Draft') { ?>
-                                        <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
+                                        <a class="dropdown-item" href="post.php?mark_invoice_sent=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php } ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>

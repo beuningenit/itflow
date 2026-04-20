@@ -1,7 +1,6 @@
 <?php
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-$client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);
 $title = sanitizeInput($_POST['title']);
 $department = sanitizeInput($_POST['department']);
@@ -19,4 +18,3 @@ $contact_technical = intval($_POST['contact_technical'] ?? 0);
 $location_id = intval($_POST['location'] ?? 0);
 $pin = sanitizeInput($_POST['pin']);
 $auth_method = sanitizeInput($_POST['auth_method']);
-

@@ -90,6 +90,7 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <div class="modal-body bg-white">
                     <div class="form-group">
                         <label>Document Name <strong class="text-danger">*</strong></label>
@@ -136,6 +137,7 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
                 </button>
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <div class="modal-body bg-white">
                     <div class="form-group">
                         <label>Document Name <strong class="text-danger">*</strong></label>

@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $item_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_id = $item_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_id = $item_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $item_name = nullable_htmlentities($row['item_name']);
 $item_description = nullable_htmlentities($row['item_description']);
@@ -25,6 +25,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
 
@@ -97,7 +98,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_item" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+        <button type="submit" name="edit_quote_item" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 </form>

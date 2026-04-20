@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_transfer'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_financial', 2);
 
     require_once 'transfer_model.php';
@@ -43,6 +45,8 @@ if (isset($_POST['add_transfer'])) {
 
 if (isset($_POST['edit_transfer'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_financial', 2);
 
     require_once 'transfer_model.php';
@@ -66,6 +70,8 @@ if (isset($_POST['edit_transfer'])) {
 }
 
 if (isset($_GET['delete_transfer'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_financial', 3);
 

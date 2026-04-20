@@ -3,12 +3,11 @@
         <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <div class="table-responsive-sm">
+                <div class="table-responsive">
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                         <tr>
-
-                            <td>
+                            <td class="checkbox-column">
                                 <?php if ($status !== 'Closed') { ?>
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
@@ -140,6 +139,7 @@
                             }
 
                             $ticket_invoice_id = intval($row['ticket_invoice_id']);
+                            $ticket_quote_id = intval($row['ticket_quote_id']);
 
                             // Get who last updated the ticket - to be shown in the last Response column
 
@@ -191,7 +191,7 @@
 
                             <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
-                                <td>
+                                <td class="checkbox-column">
                                     <!-- Ticket Bulk Select (for open tickets) -->
                                     <?php if (empty($ticket_closed_at)) { ?>
                                     <div class="form-check">
@@ -236,6 +236,8 @@
                                     <td class="text-center">
                                         <?php if ($ticket_invoice_id) { ?>
                                         <a href="invoice.php?client_id=<?php echo $client_id; ?>&invoice_id=<?php echo $ticket_invoice_id; ?>"><span class='badge badge-pill badge-success p-2'>Invoiced</span></a>
+                                        <?php } else if ($ticket_quote_id) { ?>
+                                            <a href="quote.php?client_id=<?php echo $client_id; ?>&quote_id=<?php echo $ticket_quote_id; ?>"><span class='badge badge-pill badge-primary p-2'>Quoted</span></a>
                                         <?php } else { ?>
                                         <a href="#"
                                             class="ajax-modal"

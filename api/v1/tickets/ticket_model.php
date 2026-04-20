@@ -21,7 +21,7 @@ if (isset($_POST['ticket_asset_id'])) {
 if (isset($_POST['ticket_subject'])) {
     $subject = sanitizeInput($_POST['ticket_subject']);
 } elseif ($ticket_row) {
-    $subject = $ticket_row['ticket_subject'];
+    $subject = mysqli_real_escape_string($mysqli, $ticket_row['ticket_subject']);
 } else {
     $subject = '';
 }
@@ -30,16 +30,16 @@ if (isset($_POST['ticket_subject'])) {
 if (isset($_POST['ticket_priority'])) {
     $priority = sanitizeInput($_POST['ticket_priority']);
 } elseif ($ticket_row) {
-    $priority = $ticket_row['ticket_priority'];
+    $priority = mysqli_real_escape_string($mysqli, $ticket_row['ticket_priority']);
 } else {
     $priority = 'Low';
 }
 
 
 if (isset($_POST['ticket_details'])) {
-    $details = mysqli_escape_string($mysqli, $_POST['ticket_details'] . "<br>");
+    $details = mysqli_real_escape_string($mysqli, $_POST['ticket_details'] . "<br>");
 } elseif ($ticket_row) {
-    $details = $ticket_row['ticket_details'];
+    $details = mysqli_real_escape_string($mysqli, $ticket_row['ticket_details']);
 } else {
     $details = '< blank ><br>';
 }

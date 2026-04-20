@@ -23,10 +23,11 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
     <div class="modal-body">
         <?php if (isset($_GET['client_id'])) { ?>
-        <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <?php } else { ?>
         <div class="form-group">
             <label>Client <strong class="text-danger">*</strong></label>
@@ -34,7 +35,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                 </div>
-                <select class="form-control select2" name="client" required>
+                <select class="form-control select2" name="client_id" required>
                     <?php
                         $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {

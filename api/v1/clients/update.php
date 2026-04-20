@@ -3,9 +3,6 @@
 require_once '../validate_api_key.php';
 require_once '../require_post_method.php';
 
-// Parse Info
-$client_id = intval($_POST['client_id']);
-
 // Default
 $update_count = false;
 

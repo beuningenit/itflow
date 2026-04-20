@@ -31,6 +31,7 @@ require_once 'includes/inc_all.php';
     <div class="col-md-6">
         <h4>Password</h4>
         <form action="post.php" method="post" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <div class="form-group">
                 <label>New Password</label>
                 <div class="input-group">
@@ -47,4 +48,3 @@ require_once 'includes/inc_all.php';
 
 <?php
 require_once 'includes/footer.php';
-

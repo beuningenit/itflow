@@ -17,16 +17,17 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-    <input type="hidden" name="contact" value="<?php echo $contact_id; ?>">
-    <input type="hidden" name="asset" value="<?php echo $asset_id; ?>">
+    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+    <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
     <div class="modal-body">
 
         <div class="form-group">
             <label>Description</label>
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                    <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                 </div>
                 <input type="text" class="form-control" name="description" maxlength="250" placeholder="Description of the file(s)">
             </div>
@@ -49,7 +50,7 @@ ob_start();
         </div>
 
         <div class="form-group">
-            <input type="file" class="form-control-file" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn, .cfg, .ps1, .vsdx, .drawio, .pfx, .unf, .key, .stk, .bat">
+            <input type="file" class="form-control-file" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn, .cfg, .ps1, .vsdx, .drawio, .pfx, .unf, .key, .stk, .bat, .swb">
         </div>
         <small class="text-secondary">Up to 20 files can be uploaded at once by holding down CTRL and selecting files</small>
 

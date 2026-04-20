@@ -20,9 +20,11 @@ if(isset($_POST['change_records_per_page'])){
 
 if (isset($_GET['dismiss_notification'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     $notification_id = intval($_GET['dismiss_notification']);
 
-    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id");
+    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_user_id = $session_user_id AND notification_id = $notification_id");
 
     // Logging
     logAction("Notification", "Dismiss", "$session_name dismissed notification");

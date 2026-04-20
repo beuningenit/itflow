@@ -4,6 +4,16 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 
+$license_types_array = array (
+    'Device',
+    'User',
+    'Site',
+    'Concurrent',
+    'Trial',
+    'Perpetual',
+    'Usage-based'
+);
+
 ob_start();
 
 ?>
@@ -14,6 +24,8 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
@@ -70,6 +82,30 @@ ob_start();
                 <?php } ?>
 
                 <div class="form-group">
+                    <label>Type <strong class="text-danger">*</strong></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        </div>
+                        <select class="form-control select2" name="type" required>
+                            <option value="">- Select Type -</option>
+                            <<?php
+                            $sql_software_types_select = mysqli_query($mysqli, "
+                                SELECT category_name FROM categories
+                                WHERE category_type = 'software_type'
+                                AND category_archived_at IS NULL
+                                ORDER BY category_order ASC, category_name ASC
+                            ");
+                            while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
+                                $software_type_select = nullable_htmlentities($row['category_name']);
+                                ?>
+                                <option><?= $software_type_select ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Software Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -86,16 +122,6 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                         </div>
                         <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="description" placeholder="Short description">
                     </div>
                 </div>
 
@@ -123,17 +149,12 @@ ob_start();
                 <?php } ?>
 
                 <div class="form-group">
-                    <label>Type <strong class="text-danger">*</strong></label>
+                    <label>Description</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <select class="form-control select2" name="type" required>
-                            <option value="">- Select Type -</option>
-                            <?php foreach ($software_types_array as $software_type) { ?>
-                                <option><?php echo $software_type; ?></option>
-                            <?php } ?>
-                        </select>
+                        <input type="text" class="form-control" name="description" placeholder="Short description">
                     </div>
                 </div>
 

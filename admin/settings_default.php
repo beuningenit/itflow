@@ -1,7 +1,25 @@
 <?php
-
 require_once "includes/inc_all_admin.php";
- ?>
+
+$start_page_select_array = array (
+    'dashboard.php'=>'Dashboard',
+    'clients.php'=> 'Client Management',
+    'tickets.php'=> 'Support Tickets',
+    'invoices.php' => 'Invoices'
+);
+
+$net_terms_array = array (
+    '0'=>'On Receipt',
+    '7'=>'7 Days',
+    '10'=>'10 Days',
+    '15'=>'15 Days',
+    '30'=>'30 Days',
+    '45'=>'45 Days',
+    '60'=>'60 Days',
+    '90'=>'90 Days'
+);
+
+?>
 
 <div class="card card-dark">
     <div class="card-header py-3">

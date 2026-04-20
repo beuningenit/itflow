@@ -19,7 +19,7 @@ if (isset($_POST['add_payment_method'])) {
     );
 
     mysqli_stmt_bind_param($query, "ss", $name, $description);
-    
+
     mysqli_stmt_execute($query);
 
     logAction("Payment Method", "Create", "$session_name created Payment Method $name");
@@ -33,15 +33,15 @@ if (isset($_POST['add_payment_method'])) {
 if (isset($_POST['edit_payment_method'])) {
 
     validateCSRFToken($_POST['csrf_token']);
-    
+
     $payment_method_id = intval($_POST['payment_method_id']);
     $name = cleanInput($_POST['name']);
     $description = cleanInput($_POST['description']);
 
     $query = mysqli_prepare(
         $mysqli,
-        "UPDATE payment_methods 
-         SET payment_method_name = ?, payment_method_description = ? 
+        "UPDATE payment_methods
+         SET payment_method_name = ?, payment_method_description = ?
          WHERE payment_method_id = ?"
     );
 
@@ -58,7 +58,9 @@ if (isset($_POST['edit_payment_method'])) {
 }
 
 if (isset($_GET['delete_payment_method'])) {
-    
+
+    validateCSRFToken($_GET['csrf_token']);
+
     $payment_method_id = intval($_GET['delete_payment_method']);
 
     $payment_method_name = sanitizeInput(getFieldById('payment_methods', $payment_method_is, 'payment_method_name'));

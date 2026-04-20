@@ -15,6 +15,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <div class="modal-body">
         <p><strong>Format csv file with headings & data:</strong><br>Name, Title, Department, Email, Phone, Extension, Mobile, Location</p>

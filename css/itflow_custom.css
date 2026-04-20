@@ -42,3 +42,19 @@
     color: #f1c40f;
     font-weight: 900;
 }
+
+.checkbox-column {
+    width: 40px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.checkbox-column .form-check {
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.checkbox-column .form-check-input {
+    position: static;
+    margin: 0;
+}

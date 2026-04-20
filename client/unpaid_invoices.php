@@ -71,7 +71,7 @@ $balance = $invoice_amounts - $amount_paid;
                 $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
                 ?>
 
-                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
+                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
             <?php }
             } ?>
         </div>
@@ -185,7 +185,7 @@ $balance = $invoice_amounts - $amount_paid;
                                 ?>
 
                                 <a class="dropdown-item confirm-link"
-                                    href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>">
+                                    href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="<?php echo $payment_icon; ?> text-secondary mr-2"></i><?= $saved_payment_description ?>
                                 </a>
                             <?php }

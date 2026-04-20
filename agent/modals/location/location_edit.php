@@ -47,8 +47,8 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="location_id" value="<?php echo $location_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
     <div class="modal-body">
 
@@ -92,7 +92,7 @@ ob_start();
                     <label>Description</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
                         <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?php echo $location_description; ?>">
                     </div>

@@ -13,7 +13,6 @@ $row = mysqli_fetch_assoc($sql);
 $contact_name = nullable_htmlentities($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>
@@ -25,6 +24,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
     <div class="modal-body">
 

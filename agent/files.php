@@ -189,7 +189,7 @@ function display_folders($parent_folder_id, $client_id, $indent = 0, $render_roo
                 </a>
                 <?php if ($session_user_role == 3 && $num_total == 0 && $subfolder_count == 0) { ?>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
+                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                     </a>
                 <?php } ?>
@@ -641,7 +641,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             </a>
                                             <?php if ($file_archived_at) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-info" href="post.php?restore_file=<?= $file_id ?>">
+                                                <a class="dropdown-item text-info" href="post.php?restore_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
@@ -652,7 +652,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                 <?php } ?>
                                             <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?= $file_id ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                             <?php } ?>
@@ -681,7 +681,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                             <table class="table border">
                                 <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                                 <tr>
-                                    <td class="bg-light pr-0">
+                                    <td class="bg-light checkbox-column">
                                         <div class="form-check">
                                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                         </div>
@@ -748,7 +748,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         }
                                         ?>
                                         <tr>
-                                            <td class="bg-light pr-0">
+                                            <td class="bg-light checkbox-column">
                                                 <div class="form-check">
                                                     <input class="form-check-input bulk-select" type="checkbox" name="file_ids[]" value="<?php echo $file_id ?>">
                                                 </div>
@@ -809,7 +809,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                         </a>
                                                         <?php if ($file_archived_at) { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-info" href="post.php?restore_file=<?= $file_id ?>">
+                                                            <a class="dropdown-item text-info" href="post.php?restore_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                                             </a>
                                                             <?php if ($session_user_role == 3) { ?>
@@ -820,7 +820,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                             <?php } ?>
                                                         <?php } else { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?= $file_id ?>">
+                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                             </a>
                                                         <?php } ?>
@@ -928,18 +928,18 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                         </a>
                                                         <?php if ($document_archived_at) { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-info" href="post.php?restore_document=<?= $document_id ?>">
+                                                            <a class="dropdown-item text-info" href="post.php?restore_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                                             </a>
                                                             <?php if ($session_user_role == 3) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?= $document_id ?>">
+                                                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                                 </a>
                                                             <?php } ?>
                                                         <?php } else { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger" href="post.php?archive_document=<?= $document_id ?>">
+                                                            <a class="dropdown-item text-danger" href="post.php?archive_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                             </a>
                                                         <?php } ?>

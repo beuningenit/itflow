@@ -9,12 +9,13 @@ $category_types_array = ['Expense', 'Income', 'Referral', 'Ticket'];
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New <strong><?= nullable_htmlentities($category) ?></strong> Category</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New <strong><?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?></strong> Category</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
@@ -56,6 +57,16 @@ $category_types_array = ['Expense', 'Income', 'Referral', 'Ticket'];
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                 </div>
                 <input type="color" class="form-control col-3" name="color" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
+                </div>
+                <input type="text" class="form-control" name="description" placeholder="Enter a description" maxlength="200">
             </div>
         </div>
 

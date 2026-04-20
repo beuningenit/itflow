@@ -25,6 +25,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
 
     <div class="col-md-8">
         <form action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <label>Subject <strong class="text-danger">*</strong></label>

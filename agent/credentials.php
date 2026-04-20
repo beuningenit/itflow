@@ -244,8 +244,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($archived) { ?>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-info"
-                                    type="submit" form="bulkActions" name="bulk_unarchive_credentials">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                    type="submit" form="bulkActions" name="bulk_restore_credentials">
+                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
@@ -276,11 +276,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <form id="bulkActions" action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-            <div class="table-responsive-sm">
+            <div class="table-responsive">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                         <tr>
-                            <td class="pr-0">
+                            <td class="bg-light checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
@@ -419,7 +419,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                             <tr class="<?php if ($credential_favorite) { echo "text-bold"; } ?>">
-                                <td class="pr-0">
+                                <td class="bg-light checkbox-column">
                                     <div class="form-check">
                                         <input class="form-check-input bulk-select" type="checkbox" name="credential_ids[]" value="<?php echo $credential_id ?>">
                                     </div>
@@ -503,18 +503,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <?php  if (lookupUserPermission("module_credential") >= 2) { ?>
                                                     <?php if ($credential_archived_at) { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_credential=<?php echo $credential_id; ?>">
-                                                            <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_credential=<?php echo $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                                         </a>
                                                         <?php if (lookupUserPermission("module_credential") >= 3) { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_credential=<?php echo $credential_id; ?>">
+                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_credential=<?php echo $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                         <?php } ?>
                                                         </a>
                                                     <?php } else { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_credential=<?php echo $credential_id; ?>">
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_credential=<?php echo $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                         </a>
                                                     <?php } ?>

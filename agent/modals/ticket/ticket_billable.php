@@ -26,6 +26,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
         <div class="form-group">
             <label>Billable?</label>

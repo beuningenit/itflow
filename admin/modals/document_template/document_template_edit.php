@@ -10,7 +10,6 @@ $document_template_name = nullable_htmlentities($row['document_template_name']);
 $document_template_description = nullable_htmlentities($row['document_template_description']);
 $document_template_content = nullable_htmlentities($row['document_template_content']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
 ?>
 
@@ -21,7 +20,9 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="document_template_id" value="<?php echo $document_template_id; ?>">
+
     <div class="modal-body">
 
         <div class="form-group">
@@ -38,7 +39,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_document_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+        <button type="submit" name="edit_document_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save template</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>

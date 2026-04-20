@@ -24,6 +24,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="document_id" value="<?= $document_id ?>">
     <div class="modal-body">
 

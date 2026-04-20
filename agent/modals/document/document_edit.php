@@ -25,8 +25,9 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="document_id" value="<?php echo $document_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+
     <div class="modal-body">
 
         <div class="form-group">
@@ -37,8 +38,14 @@ ob_start();
             <textarea class="form-control tinymce" name="content"><?php echo $document_content; ?></textarea>
         </div>
 
+        <label>Description</label>
         <div class="form-group">
-            <input type="text" class="form-control" name="description" value="<?php echo $document_description; ?>" placeholder="Short summary of changes">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                </div>
+                <input type="text" class="form-control" name="description" value="<?php echo $document_description; ?>" placeholder="Short summary of the document">
+            </div>
         </div>
 
     </div>

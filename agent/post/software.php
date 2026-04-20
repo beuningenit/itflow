@@ -8,11 +8,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_software_from_template'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     // GET POST Data
     $client_id = intval($_POST['client_id']);
     $software_template_id = intval($_POST['software_template_id']);
+
+    enforceClientAccess();
 
     // GET Software Template Info
     $sql_software_templates = mysqli_query($mysqli,"SELECT * FROM software_templates WHERE software_template_id = $software_template_id");
@@ -40,6 +44,8 @@ if (isset($_POST['add_software_from_template'])) {
 
 if (isset($_POST['add_software'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
@@ -66,6 +72,8 @@ if (isset($_POST['add_software'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
     $vendor = intval($_POST['vendor'] ?? 0);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase_reference = '$purchase_reference', software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
 
@@ -99,10 +107,11 @@ if (isset($_POST['add_software'])) {
 
 if (isset($_POST['edit_software'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $software_id = intval($_POST['software_id']);
-    $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
     $version = sanitizeInput($_POST['version']);
     $description = sanitizeInput($_POST['description']);
@@ -126,6 +135,10 @@ if (isset($_POST['edit_software'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
     $vendor = intval($_POST['vendor'] ?? 0);
+
+    $client_id = intval(getFieldById('software', $software_id, 'software_client_id'));
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase_reference = '$purchase_reference', software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_vendor_id = $vendor WHERE software_id = $software_id");
 
@@ -158,6 +171,8 @@ if (isset($_POST['edit_software'])) {
 
 if (isset($_GET['archive_software'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $software_id = intval($_GET['archive_software']);
@@ -167,6 +182,8 @@ if (isset($_GET['archive_software'])) {
     $row = mysqli_fetch_assoc($sql);
     $software_name = sanitizeInput($row['software_name']);
     $client_id = intval($row['software_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id");
 
@@ -184,6 +201,8 @@ if (isset($_GET['archive_software'])) {
 
 if (isset($_GET['delete_software'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 3);
 
     $software_id = intval($_GET['delete_software']);
@@ -193,6 +212,8 @@ if (isset($_GET['delete_software'])) {
     $row = mysqli_fetch_assoc($sql);
     $software_name = sanitizeInput($row['software_name']);
     $client_id = intval($row['software_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id");
 
@@ -205,6 +226,8 @@ if (isset($_GET['delete_software'])) {
 }
 
 if (isset($_POST['export_software_csv'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support');
 
@@ -219,7 +242,7 @@ if (isset($_POST['export_software_csv'])) {
         $file_name_prepend = "$session_company_name-";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM software $client_query ORDER BY software_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM software LEFT JOIN client ON client_id = software_client_id WHERE software_archived_at IS NULL $client_query $access_permission_query ORDER BY software_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 

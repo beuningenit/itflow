@@ -38,29 +38,30 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="recurring_ticket_id" value="<?php echo $recurring_ticket_id; ?>">
-    <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-edit-details<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-edit-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-contacts<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-edit-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-schedule<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-edit-schedule"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-assets<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-edit-assets"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</a>
             </li>
         </ul>
 
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-edit-details<?php echo $recurring_ticket_id; ?>">
+            <div class="tab-pane fade show active" id="pills-edit-details">
 
                 <div class="form-group">
                     <label>Subject <strong class="text-danger">*</strong></label>
@@ -100,7 +101,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 </div>
-                                <select class="form-control select2" name="category">
+                                <select class="form-control select2" name="category_id">
                                     <option value="0">- Uncategorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -160,7 +161,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-edit-contacts<?php echo $recurring_ticket_id; ?>">
+            <div class="tab-pane fade" id="pills-edit-contacts">
 
                 <div class="form-group">
                     <label>Contact</label>
@@ -168,7 +169,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-control select2" name="contact_id">
                             <option value="0">- Select Contact -</option>
                             <?php
                             $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
@@ -203,7 +204,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-edit-schedule<?php echo $recurring_ticket_id; ?>">
+            <div class="tab-pane fade" id="pills-edit-schedule">
 
                 <div class="form-group">
                     <label>Frequency <strong class="text-danger">*</strong></label>
@@ -235,7 +236,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-edit-assets<?php echo $recurring_ticket_id; ?>">
+            <div class="tab-pane fade" id="pills-edit-assets">
 
                 <div class="form-group">
                     <label>Asset</label>
@@ -243,7 +244,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
-                        <select class="form-control select2" name="asset">
+                        <select class="form-control select2" name="asset_id">
                             <option value="0">- Select Asset -</option>
                             <?php
 

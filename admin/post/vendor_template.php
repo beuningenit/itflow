@@ -9,6 +9,8 @@ require_once '../agent/post/vendor.php';
 
 if (isset($_POST['add_vendor_template'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
     $account_number = sanitizeInput($_POST['account_number']);
@@ -36,6 +38,8 @@ if (isset($_POST['add_vendor_template'])) {
 }
 
 if (isset($_POST['edit_vendor_template'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     $vendor_template_id = intval($_POST['vendor_template_id']);
     $name = sanitizeInput($_POST['name']);
@@ -140,7 +144,9 @@ if (isset($_POST['edit_vendor_template'])) {
 }
 
 if (isset($_GET['delete_vendor_template'])) {
-    
+
+    validateCSRFToken($_GET['csrf_token']);
+
     $vendor_template_id = intval($_GET['delete_vendor_template']);
 
     $vendor_template_name = sanitizeInput(getFieldById('vendor_templates', $vendor_template_id, 'vendor_template_name'));

@@ -4,11 +4,21 @@
  * ITFlow - GET/POST request handler for trips (accounting related)
  */
 
+ // Todo - JQ 2026-03-02 - Possibly need another Perm for trips
+
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_trip'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'trip_model.php';
+
+    $client_id = intval($_POST['client_id']);
+
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_user_id = $user_id, trip_client_id = $client_id");
 
@@ -24,9 +34,17 @@ if (isset($_POST['add_trip'])) {
 
 if (isset($_POST['edit_trip'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'trip_model.php';
 
     $trip_id = intval($_POST['trip_id']);
+
+    $client_id = intval(getFieldById('trips', $trip_id, 'trip_client_id'));
+
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id");
 
@@ -40,6 +58,10 @@ if (isset($_POST['edit_trip'])) {
 
 if (isset($_GET['delete_trip'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_financial', 3);
+
     $trip_id = intval($_GET['delete_trip']);
 
     // Get Trip Info and Client ID for logging
@@ -47,6 +69,10 @@ if (isset($_GET['delete_trip'])) {
     $client_id = intval($row['trip_client_id']);
     $trip_source = sanitizeInput($row['trip_source']);
     $trip_destination = sanitizeInput($row['trip_destination']);
+
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id");
 
@@ -60,11 +86,16 @@ if (isset($_GET['delete_trip'])) {
 
 if (isset($_POST['export_trips_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_financial');
+
     if ($_POST['client_id']) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND trip_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        enforceClientAccess();
     } else {
         $client_query = '';
         $client_name = '';
@@ -86,6 +117,7 @@ if (isset($_POST['export_trips_csv'])) {
         LEFT JOIN clients ON trip_client_id = client_id
         WHERE $date_query
         $client_query
+        $access_permission_query
         ORDER BY trip_date DESC"
     );
 

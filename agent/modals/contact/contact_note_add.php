@@ -8,8 +8,8 @@ $sql = mysqli_query($mysqli, "SELECT contact_name FROM contacts WHERE contact_id
 $row = mysqli_fetch_assoc($sql);
 $contact_name = nullable_htmlentities($row['contact_name']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -20,6 +20,7 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
 
     <div class="modal-body">
@@ -31,8 +32,17 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 </div>
                 <select class="form-control select2" name="type">
-                    <?php foreach ($note_types_array as $note_type => $note_type_icon) { ?>
-                    <option><?php echo nullable_htmlentities($note_type); ?></option>
+                    <?php
+                    $sql_contact_note_types_select = mysqli_query($mysqli, "
+                        SELECT category_name FROM categories
+                        WHERE category_type = 'contact_note_type'
+                        AND category_archived_at IS NULL
+                        ORDER BY category_order ASC, category_name ASC
+                    ");
+                    while ($row = mysqli_fetch_assoc($sql_contact_note_types_select)) {
+                        $contact_note_type_select = nullable_htmlentities($row['category_name']);
+                        ?>
+                        <option><?= $contact_note_type_select ?></option>
                     <?php } ?>
                 </select>
             </div>

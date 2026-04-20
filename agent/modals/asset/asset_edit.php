@@ -71,7 +71,6 @@ ob_start();
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
-    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
 
@@ -80,10 +79,10 @@ ob_start();
                 <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-network">Network</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-assignment">Assignment</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-assignment">Assignment</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-network">Network</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pills-purchase">Purchase</a>
@@ -101,6 +100,20 @@ ob_start();
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
             <div class="tab-pane fade show active" id="pills-details">
+
+                <div class="form-group">
+                    <label>Type <strong class="text-danger">*</strong></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                        </div>
+                        <select class="form-control select2" name="type" required>
+                            <?php foreach($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
+                                <option <?php if ($asset_type_select == $asset_type) { echo "selected"; } ?>><?php echo $asset_type_select; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong></label>
@@ -123,37 +136,13 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Description</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255" value="<?= $asset_description ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Type <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        </div>
-                        <select class="form-control select2" name="type" required>
-                            <?php foreach($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
-                                <option <?php if ($asset_type_select == $asset_type) { echo "selected"; } ?>><?php echo $asset_type_select; ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
                 <?php //Do not display Make Model or Serial if Virtual is selected
                 if ($asset_type !== 'virtual') { ?>
                     <div class="form-group">
-                        <label>Make </label>
+                        <label>Make</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
                             <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200" value="<?= $asset_make ?>">
                         </div>
@@ -163,7 +152,7 @@ ob_start();
                         <label>Model</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
                             <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200" value="<?= $asset_model ?>">
                         </div>
@@ -185,12 +174,120 @@ ob_start();
                         <label>Operating System</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-laptop-code"></i></span>
                             </div>
                             <input type="text" class="form-control" name="os" id="os" placeholder="ex Windows 10 Pro" maxlength="200" value="<?= $asset_os ?>">
                         </div>
                     </div>
                 <?php } ?>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255" value="<?= $asset_description ?>">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-assignment">
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        </div>
+                        <select class="form-control select2" name="location">
+                            <option value="">- Select Location -</option>
+                            <?php
+
+                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $asset_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                            while ($row = mysqli_fetch_assoc($sql_locations)) {
+                                $location_id_select = intval($row['location_id']);
+                                $location_name_select = nullable_htmlentities($row['location_name']);
+                                $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                                if ($location_archived_at) {
+                                    $location_name_select_display = "($location_name_select) - ARCHIVED";
+                                } else {
+                                    $location_name_select_display = $location_name_select;
+                                }
+                                ?>
+                                <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select_display ?></option>
+
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Physical Location</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?= $asset_physical_location ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                        </div>
+                        <select class="form-control select2" name="contact">
+                            <option value="">- Select Contact -</option>
+                            <?php
+
+                            $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $asset_contact_id OR contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                            while ($row = mysqli_fetch_assoc($sql_contacts)) {
+                                $contact_id_select = intval($row['contact_id']);
+                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                if ($contact_archived_at) {
+                                    $contact_name_select_display = "($contact_name_select) - ARCHIVED";
+                                } else {
+                                    $contact_name_select_display = $contact_name_select;
+                                }
+                                ?>
+                                <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>">
+                                    <?= $contact_name_select_display ?>
+                                </option>
+
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
+                        </div>
+                        <select class="form-control select2" name="status">
+                            <option value="">- Select Status -</option>
+                            <?php
+                            $sql_interface_types_select = mysqli_query($mysqli, "
+                                SELECT category_name FROM categories
+                                WHERE category_type = 'asset_status'
+                                AND category_archived_at IS NULL
+                                ORDER BY category_order ASC, category_name ASC
+                            ");
+                            while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
+                                $asset_status_select = nullable_htmlentities($row['category_name']);
+                                ?>
+                                <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>>
+                                    <?= $asset_status_select ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
 
             </div>
 
@@ -227,7 +324,7 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>IP Address or DHCP</label>
+                    <label>IPv4 Address / <span class="text-muted">DHCP</span></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
@@ -242,12 +339,12 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>NAT IP</label>
+                    <label>MAC Address</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="nat_ip" value="<?= $asset_nat_ip ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control" name="mac" value="<?= $asset_mac ?>" placeholder="00:11:22:AA:BB:CC" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -257,17 +354,17 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329" maxlength="200">
+                        <input type="text" class="form-control" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="2001:0db8:1000::3" maxlength="200">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>MAC Address</label>
+                    <label>NAT Address</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mac" value="<?= $asset_mac ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
+                        <input type="text" class="form-control" name="nat_ip" value="<?= $asset_nat_ip ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -297,92 +394,6 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
                         <input type="text" class="form-control" name="uri_client" placeholder="URI http:// ftp:// ssh: etc -- viewable in Client Portal" maxlength="500" value="<?= $asset_uri_client ?>">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-assignment">
-
-                <div class="form-group">
-                    <label>Physical Location</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?= $asset_physical_location ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Location</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
-                        <select class="form-control select2" name="location">
-                            <option value="">- Select Location -</option>
-                            <?php
-
-                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $asset_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_locations)) {
-                                $location_id_select = intval($row['location_id']);
-                                $location_name_select = nullable_htmlentities($row['location_name']);
-                                $location_archived_at = nullable_htmlentities($row['location_archived_at']);
-                                if ($location_archived_at) {
-                                    $location_name_select_display = "($location_name_select) - ARCHIVED";
-                                } else {
-                                    $location_name_select_display = $location_name_select;
-                                }
-                                ?>
-                                <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select_display ?></option>
-
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Assign To</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact">
-                            <option value="">- Select Contact -</option>
-                            <?php
-
-                            $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $asset_contact_id OR contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                                $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = nullable_htmlentities($row['contact_name']);
-                                $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
-                                if ($contact_archived_at) {
-                                    $contact_name_select_display = "($contact_name_select) - ARCHIVED";
-                                } else {
-                                    $contact_name_select_display = $contact_name_select;
-                                }
-                                ?>
-                                <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>">
-                                    <?= $contact_name_select_display ?>
-                                </option>
-
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Status</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
-                        </div>
-                        <select class="form-control select2" name="status">
-                            <?php foreach($asset_status_array as $asset_status_select) { ?>
-                                <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>><?= $asset_status_select ?></option>
-                            <?php } ?>
-                        </select>
                     </div>
                 </div>
 
@@ -423,7 +434,7 @@ ob_start();
                         <label>Purchase Reference</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
                             </div>
                             <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?= $asset_purchase_reference ?>">
                         </div>

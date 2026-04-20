@@ -88,8 +88,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="dropdown-menu">
                                 <?php if ($archived) { ?>
                                 <button class="dropdown-item text-info"
-                                    type="submit" form="bulkActions" name="bulk_unarchive_vendors">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                    type="submit" form="bulkActions" name="bulk_restore_vendors">
+                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
@@ -113,11 +113,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <form id="bulkActions" action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-            <div class="table-responsive-sm">
+            <div class="table-responsive">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
-                        <td class="pr-0">
+                        <td class="bg-light checkbox-column">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
@@ -196,24 +196,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td class="pr-0">
+                            <td class="bg-light checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="vendor_ids[]" value="<?php echo $vendor_id ?>">
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
+                                <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
                                     <div class="media">
-                                        <i class="fa fa-fw fa-2x fa-building mr-3"></i>
+                                        <i class="fas fa-fw fa-2x fa-building text-dark mr-2"></i>
                                         <div class="media-body">
                                             <div><?php echo $vendor_name; ?></div>
-                                            <?php echo $vendor_account_number_display; ?>
+                                            <div><?php echo $vendor_account_number_display; ?></div>
                                         </div>
                                     </div>
                                 </a>
                             </td>
                             <td>
                                 <?php echo $vendor_description_display; ?>
+                            </td>
                             <td>
                                 <?php
                                 if (!empty($vendor_contact_name)) { ?>
@@ -247,18 +248,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php if ($session_user_role == 3) { ?>
                                             <?php if ($vendor_archived_at) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_vendor=<?php echo $vendor_id; ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <?php if ($config_destructive_deletes_enable) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?php echo $vendor_id; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                             <?php } ?>
                                             <?php } else { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?php echo $vendor_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <?php } ?>

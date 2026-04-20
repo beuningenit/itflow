@@ -69,6 +69,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
             <br><br>
 
             <form action="post.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-success" name="create_stripe_customer"><strong><i class="fas fa-check mr-2"></i>I grant consent for automatic payments</strong></button>
@@ -108,7 +109,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                             $exp_year = nullable_htmlentities($pm->card->exp_year);
 
                             echo "<li><i class='$payment_icon fa-2x mr-2'></i>$brand x<strong>$last4</strong> | Exp. $exp_month/$exp_year";
-                            echo " – <a class='text-danger' href='post.php?delete_saved_payment={$method['saved_payment_id']}'>Remove</a></li>";
+                            echo " – <a class='text-danger' href='post.php?delete_saved_payment={$method['saved_payment_id']}&csrf_token={$_SESSION['csrf_token']}'>Remove</a></li>";
                         }
                     } catch (Exception $e) {
                         $error = $e->getMessage();

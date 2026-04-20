@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_client'])) {
 
+    // JQ - Using Prepared MySQLi Statements here for show this is not our standard and is only used in the client add/edit POST.
+
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
@@ -252,31 +254,71 @@ if (isset($_POST['add_client'])) {
 
 if (isset($_POST['edit_client'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     require_once 'client_model.php';
 
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
+    // Update client using prepared statement
+    $query = mysqli_prepare(
+        $mysqli,
+        "UPDATE clients SET
+        client_name = ?,
+        client_type = ?,
+        client_website = ?,
+        client_referral = ?,
+        client_rate = ?,
+        client_net_terms = ?,
+        client_tax_id_number = ?,
+        client_lead = ?,
+        client_abbreviation = ?,
+        client_notes = ?
+        WHERE client_id = ?"
+    );
+    mysqli_stmt_bind_param(
+        $query,
+        "ssssdisiisi",
+        $name,
+        $type,
+        $website,
+        $referral,
+        $rate,
+        $net_terms,
+        $tax_id_number,
+        $lead,
+        $abbreviation,
+        $notes,
+        $client_id
+    );
+    mysqli_stmt_execute($query);
 
-    // Create Referral if it doesn't exist
-    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-    if(mysqli_num_rows($sql) == 0) {
-        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
+    // Create referral category if it doesn't exist
+    $query = mysqli_prepare($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = ?");
+    mysqli_stmt_bind_param($query, "s", $referral);
+    mysqli_stmt_execute($query);
+    mysqli_stmt_store_result($query);
+    if (mysqli_stmt_num_rows($query) == 0) {
+        $query = mysqli_prepare($mysqli, "INSERT INTO categories SET category_name = ?, category_type = 'Referral'");
+        mysqli_stmt_bind_param($query, "s", $referral);
+        mysqli_stmt_execute($query);
 
         logAction("Category", "Create", "$session_name created referral category $referral");
     }
 
-    // Tags
-    // Delete existing tags
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
+    // Tags - delete existing and re-insert
+    $query = mysqli_prepare($mysqli, "DELETE FROM client_tags WHERE client_id = ?");
+    mysqli_stmt_bind_param($query, "i", $client_id);
+    mysqli_stmt_execute($query);
 
-    // Add new tags
-    if(isset($_POST['tags'])) {
-        foreach($_POST['tags'] as $tag) {
+    if (isset($_POST['tags'])) {
+        $query = mysqli_prepare($mysqli, "INSERT INTO client_tags SET client_id = ?, tag_id = ?");
+        foreach ($_POST['tags'] as $tag) {
             $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+            mysqli_stmt_bind_param($query, "ii", $client_id, $tag);
+            mysqli_stmt_execute($query);
         }
     }
 
@@ -392,7 +434,7 @@ if (isset($_GET['delete_client'])) {
     while($row = mysqli_fetch_assoc($sql)) {
         $quote_id = $row['quote_id'];
 
-        mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_quote_id = $quote_id");
+        mysqli_query($mysqli, "DELETE FROM quote_items WHERE item_quote_id = $quote_id");
     }
     mysqli_query($mysqli, "DELETE FROM quotes WHERE quote_client_id = $client_id");
 
@@ -400,7 +442,7 @@ if (isset($_GET['delete_client'])) {
     $sql = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
     while($row = mysqli_fetch_assoc($sql)) {
         $recurring_invoice_id = $row['recurring_invoice_id'];
-        mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
+        mysqli_query($mysqli, "DELETE FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     }
     mysqli_query($mysqli, "DELETE FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
 
@@ -442,6 +484,8 @@ if (isset($_GET['delete_client'])) {
 }
 
 if (isset($_POST['export_clients_csv'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 1);
 
@@ -492,6 +536,8 @@ if (isset($_POST['export_clients_csv'])) {
 }
 
 if (isset($_POST["import_clients_csv"])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
     $error = false;
@@ -939,6 +985,40 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
 }
 
+if (isset($_POST['bulk_edit_client_net_terms'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
+
+    $net_terms = intval($_POST['net_terms']);
+
+    if (isset($_POST['client_ids'])) {
+
+        $count = count($_POST['client_ids']);
+
+        foreach($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_assoc($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli,"UPDATE clients SET client_net_terms = $net_terms WHERE client_id = $client_id");
+
+            logAction("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
+
+        }
+
+        logAction("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
+
+        flash_alert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['bulk_assign_client_tags'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -985,6 +1065,10 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 }
 
 if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 1);
 
     $client_ids = array_map('intval', $_POST['client_ids']);
     $count = count($client_ids);
@@ -1140,6 +1224,8 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 }
 
 if (isset($_POST["export_client_pdf"])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     // Enforce permissions
     enforceUserPermission("module_client", 3);

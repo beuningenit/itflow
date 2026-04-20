@@ -2,6 +2,82 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.04-beuningenit] Beuningen IT merge of upstream v26.04
+- Merged upstream itflow-org/itflow v26.04 into the Beuningen IT fork.
+- Preserved custom functionality:
+  - `custom/beuningenit/` bootstrap + handlers (ticket items) + UI (ticket items card, bulk tickets)
+  - Extra API endpoints: `api/v1/ticket_items/{read,update}.php`, `api/v1/tickets/close.php`, `api/v1/time_entries/{read,update}.php`, adjustments to `api/v1/tickets/resolve.php` and `api/v1/validate_api_key.php`
+  - Ticket item add/edit modals under `agent/modals/ticket/`
+  - Ticket reply: backdating (`time_date`) and assign time entry to another agent (`time_user_id`) in both add and edit flows.
+- Reverted unintentional downgrades that had accumulated in the fork (mysqli_fetch_array, randomString(156), missing SMTP provider OAuth2 check, removed `$assigned_to` from edit_ticket, missing `access_permission_query_overide` for client-restricted agents, unsanitized/non-CSRF links in ticket details) so that upstream v26.04 security fixes and performance improvements take effect.
+
+## [26.04] Stable Release
+### Bug Fixes
+- Racks: Fix Device Removal.
+- Table Lists: replace class table-responsive-sm with just table-reponsive was causing ui issues with certain screen sizes.
+- Client: Fix Edit erroring on certain characters.
+- Category: Fix Add/Edit due to missing CSRF fields.
+- Category: Fix Restore function and Icon and text color.
+- Invoice: Do not apply late fee on first overdue reminder (1 day).
+- Ticket: Fix issue with contact not being added with Add contact modal v1.
+- Quote: Fix Copy was missing client.
+- API: Don't set client ID from POST - this is properly done via require_post_method instead only if it's an all-clients key.
+- API: Prevent error 500s when existing data can't be cleanly re-inserted to database.
+- API: Add more helpful errors.
+- API: Fix asset read uri_2 field.
+- API: Various other field fixes.
+
+### New Features & Updates 
+- Categories: Add Description Field.
+- Categories: Add DB Field for order.
+- Categories: Move Asset Status and Network Interface Type to categories so custom ones can be created and edited.
+- Categories: Moved note type, software type, rack type to be creatable/editable Categories with common defaults and descriptions
+- Files: Allow .swb file for MikroTik Backup Files.
+- Software: Added additonal License Types including Perpetual, Site, etc.
+- API: Invoice Items: Add read endpoint.
+- Networks: Added Import.
+- Bump TinyMCE from 8.3.2 to 8.4.0.
+- Bump stripe-php from 19.4.1 to 20.0.0.
+
+## [26.03] Stable Release
+### Bug Fixes
+- Ticket Templates: Fix Task Sortinhahahg.
+- Ticket: Lower autoclose setting minimum value from 48 to 24 Hours.
+- Ticket: Fix Task Approval.
+- Recurring Ticket: add empty value placeholder for Ticket Frequency.
+- Documents/Files: Fix redirect after File Upload to redirect to files instead of the non existent documents.
+- Setup: Fix base url tacking on /setup when not installing via script.
+
+### New Features & Updates 
+- Clients: Net Terms: Added common 45 and 15 Days, removed 14 Days not as common.
+- Clients: Bulk Action Set Net Terms Added.
+- Clients: Swapped location and contact column, add PopOver with Details such as created, abbreviation, DB ID instead of taking up space underneath client, rounded tag pills and increased padding, removed info badges and added one info badge that displays a popover with details.
+- Clients: Added New Ticket to Client Top Header Menu.
+- Clients: Client Overview: UI Sprucing.
+- Invoice: Send reminder 1 day after due date.
+- Invoices/Quotes/Recurring Invoices: Split Items tables into their own POST logic and Modal UIs and tables (quote_items, invoice_items, recurring_items).
+- Tickets: New Ticket Parsing - Anyone CC'ed onto the original email that created the ticket is added as a ticket watcher.
+- Ticket/Quotes: Quotes can now be associated with a ticket.
+- Networks: Removed Subnet Mask Field, Use CIDR instead.
+- Networks: Rearranged fields, Updated placeholders, Add/Edit/list for better flow.
+- Networks: Renamed DHCP to IP Range to allow for you use of both DHCP and or Usable IPs.
+- Assets: Rearranged fields, Updated placeholders, Add/Edit/list for better flow.
+- Assets: Added IPv6 if available under IP, Make and Model are now one line with Serial Underneath. Added OS under Type. use pill for status.
+- Calendar: Event thats are cut off can now be viewed as a tooltip on hover.
+- Calendar: Renamed System Calendars to built-in calendars and added the names and color dot for reference.
+- Calendar: You can now delete a custom calendar.
+- Report: Client Ticket Time Detail Audit: Selectable Billing Time Increment, will later be avauilable globally.
+- Roles/Permissions: Now complete and is out of beta all permission roles are strictly enforced, except for in Trips and Calendar, new enforce modules will be added for these at a later date.
+- Project Templates: Ticket Template order can now be dragged and dropped.
+- Global: Introduced new checkbox class to all Checkbox select columns to keep consistency and reduce space and enhance ui.
+- Global: CSRF Checks everywhere instead of just deletion calls.
+- Global: Renamed the rest of the unarchive post and label calls to restore.
+- Files: Allow upload of .unifi extension.
+- Bump Libraries:
+  - stripe-php from 19.0.0 to 19.4.1.
+  - fullcalendar from 6.1.19 to 6.1.20
+  - TCPDF from 6.10.1 to 6.11.2
+
 ## [26.02.1] Maint Release
 ### Bug Fixes
 - Credentials: Fix Password Generator.
@@ -12,7 +88,7 @@ This file documents all notable changes made to ITFlow.
 - Ticket Details: Deny access to client restricted agents to view tickets without client_id in uri.
 - Tickets: Allow agents with restricted client access to view and edit tickets without a client.
 - Ticket Change client: Limit selection for agents with restricted client access.
-- Ticket Details: Don't display Updated at when null.
+- Ticket Details: Don't display updated at when null.
 
 ### New Features & Updates 
 - Report: Added Client Detail Auditing.

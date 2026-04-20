@@ -17,7 +17,6 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
-    <div class="alert alert-info text-center"><strong>Roles are still in development. Permissions may not be fully enforced.</strong></div>
 
     <div class="card card-dark">
         <div class="card-header py-2">
@@ -95,10 +94,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a href="#" <?php if ($role_id !== 3) { ?> class="ajax-modal" data-modal-url="modals/role/role_edit.php?id=<?= $role_id ?>" <?php } ?>>
-                                    <strong class="text-dark"><?php echo $role_name; ?></strong>
+                                <a class="<?php if ($role_id !== 3) { ?> ajax-modal" data-modal-url="modals/role/role_edit.php?id=<?= $role_id ?>" <?php } ?> href="#">
+                                    <div class="media">
+                                        <i class="fas fa-fw fa-2x fa-user-shield text-dark mr-2"></i>
+                                        <div class="media-body">
+                                            <div><?= $role_name ?></div>
+                                            <div><small class="text-secondary"><?= $role_description ?></small></div>
+                                        </div>
+                                    </div>
                                 </a>
-                                <div class="text-secondary"><?php echo $role_description; ?></div>
                             </td>
                             <td><?php echo $user_names_string; ?></td>
                             <td><?php echo $role_admin ? 'Yes' : 'No' ; ?></td>

@@ -176,7 +176,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             </div>
         </div>
 
-        <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
+        <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
         <div class="row mb-3">
             <div class="col-md-12">

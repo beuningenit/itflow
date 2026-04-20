@@ -49,10 +49,10 @@ ob_start();
                 <a class="nav-link active" data-toggle="pill" href="#pills-asset-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-network">Network</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-asset-assignment">Assignment</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-assignment">Assignment</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-asset-network">Network</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pills-asset-purchase">Purchase</a>
@@ -98,37 +98,10 @@ ob_start();
                 <?php } ?>
 
                 <div class="form-group">
-                    <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary" title="Pin to Overview">Favorite</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="name" placeholder="Asset name or asset tag" maxlength="200" required autofocus>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255">
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                         </div>
                         <select class="form-control select2" name="type" required>
                             <option value="">- Select Type -</option>
@@ -139,15 +112,32 @@ ob_start();
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary" title="Pin to Overview">Favorite</span></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="name" placeholder="e.g. SRV-DC01" maxlength="200" required autofocus>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <label class="star-toggle mb-0" title="Favorite">
+                                    <input type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <?php //Do not display Make Model or Serial if Virtual is selected
                 if ($type !== 'Virtual') { ?>
                     <div class="form-group">
                         <label>Make</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200">
+                            <input type="text" class="form-control" name="make" placeholder="e.g. Dell, HP, Lenovo" maxlength="200">
                         </div>
                     </div>
 
@@ -155,9 +145,9 @@ ob_start();
                         <label>Model</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200">
+                            <input type="text" class="form-control" name="model" placeholder="e.g. PowerEdge R740" maxlength="200">
                         </div>
                     </div>
 
@@ -167,7 +157,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial number" maxlength="200">
+                            <input type="text" class="form-control" name="serial" placeholder="e.g. ABC1234XYZ" maxlength="200">
                         </div>
                     </div>
                 <?php } ?>
@@ -177,12 +167,112 @@ ob_start();
                         <label>Operating System</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-laptop-code"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="os" id="os" placeholder="ex Windows 10 Pro" maxlength="200">
+                            <input type="text" class="form-control" name="os" id="os" placeholder="e.g. Windows 11 Pro, Ubuntu 24.04" maxlength="200">
                         </div>
                     </div>
                 <?php } ?>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="description" placeholder="e.g. Domain controller for HQ" maxlength="255">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="pills-asset-assignment">
+
+                <?php if ($client_id) { ?>
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        </div>
+                        <select class="form-control select2" name="location">
+                            <option value="">- Select Location -</option>
+                            <?php
+
+                            while ($row = mysqli_fetch_assoc($sql_location_select)) {
+                                $location_id = intval($row['location_id']);
+                                $location_name = nullable_htmlentities($row['location_name']);
+                                ?>
+                                <option value="<?= $location_id ?>"><?= $location_name ?></option>
+                            <?php } ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <div class="form-group">
+                    <label>Physical Location</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="physical_location" placeholder="e.g. Floor 2, Closet B" maxlength="200">
+                    </div>
+                </div>
+
+                <?php if ($client_id) { ?>
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                        </div>
+                        <select class="form-control select2" name="contact">
+                            <option value="">- Select Contact -</option>
+                            <?php
+
+                            while ($row = mysqli_fetch_assoc($sql_contact_select)) {
+                                $contact_id_select = intval($row['contact_id']);
+                                $contact_name = nullable_htmlentities($row['contact_name']);
+                                ?>
+                                <option
+                                    <?php if ($contact_id == $contact_id_select) {
+                                    echo "selected"; }
+                                    ?>
+                                    value="<?= $contact_id_select ?>"><?= $contact_name ?>
+                                </option>
+
+                            <?php } ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
+                        </div>
+                        <select class="form-control select2" name="status">
+                            <option value="">- Select Status -</option>
+                            <?php
+                            $sql_interface_types_select = mysqli_query($mysqli, "
+                                SELECT category_name FROM categories
+                                WHERE category_type = 'asset_status'
+                                AND category_archived_at IS NULL
+                                ORDER BY category_order ASC, category_name ASC
+                            ");
+                            while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
+                                $asset_status_select = nullable_htmlentities($row['category_name']);
+                                ?>
+                                <option><?= $asset_status_select ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
 
             </div>
 
@@ -213,12 +303,12 @@ ob_start();
                 <?php } ?>
 
                 <div class="form-group">
-                    <label>IP Address or DHCP</label>
+                    <label>IPv4 Address / <span class="text-muted">DHCP</span></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control" name="ip" placeholder="e.g. 192.168.1.10" data-inputmask="'alias': 'ip'" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1">
@@ -228,12 +318,12 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>NAT IP Address</label>
+                    <label>MAC Address</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control" name="mac" placeholder="e.g. 00:1A:2B:3C:4D:5E" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -243,17 +333,17 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ipv6" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329" maxlength="200">
+                        <input type="text" class="form-control" name="ipv6" placeholder="e.g. 2001:db8::1" maxlength="200">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>MAC Address</label>
+                    <label>NAT Address</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
+                        <input type="text" class="form-control" name="nat_ip" placeholder="e.g. 203.0.113.10 or 10.0.0.5" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -263,7 +353,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" maxlength="500">
+                        <input type="text" class="form-control" name="uri" placeholder="e.g. https:// or ssh://" maxlength="500">
                     </div>
                 </div>
 
@@ -273,7 +363,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" maxlength="500">
+                        <input type="text" class="form-control" name="uri_2" placeholder="e.g. https:// or ssh://" maxlength="500">
                     </div>
                 </div>
 
@@ -283,87 +373,9 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri_client" placeholder="URI http:// ftp:// ssh: etc -- viewable in Client Portal" maxlength="500">
+                        <input type="text" class="form-control" name="uri_client" placeholder="e.g. https:// or ssh://" maxlength="500">
                     </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-asset-assignment">
-
-                <div class="form-group">
-                    <label>Physical Location</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200">
-                    </div>
-                </div>
-
-                <?php if ($client_id) { ?>
-                <div class="form-group">
-                    <label>Location</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
-                        <select class="form-control select2" name="location">
-                            <option value="">- Select Location -</option>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_location_select)) {
-                                $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
-                                ?>
-                                <option value="<?= $location_id ?>"><?= $location_name ?></option>
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Assign To</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact">
-                            <option value="">- Select Contact -</option>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_contact_select)) {
-                                $contact_id_select = intval($row['contact_id']);
-                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                ?>
-                                <option
-                                    <?php if ($contact_id == $contact_id_select) {
-                                    echo "selected"; }
-                                    ?>
-                                    value="<?= $contact_id_select ?>"><?= $contact_name ?>
-                                </option>
-
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-                <?php } ?>
-
-                <div class="form-group">
-                    <label>Status</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
-                        </div>
-                        <select class="form-control select2" name="status">
-                            <option value="">- Select Status -</option>
-                            <?php foreach($asset_status_array as $asset_status) { ?>
-                                <option><?php echo $asset_status; ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
+                    <small class="text-muted">Viewable in client portal.</small>
                 </div>
 
             </div>
@@ -398,9 +410,9 @@ ob_start();
                         <label>Purchase Reference</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number">
+                            <input type="text" class="form-control" name="purchase_reference" placeholder="e.g. INV-1045 or PO-7782">
                         </div>
                     </div>
 
@@ -445,9 +457,9 @@ ob_start();
                     <label>Username</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa  fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="username" placeholder="Username">
+                        <input type="text" class="form-control" name="username" placeholder="e.g. admin">
                     </div>
                 </div>
 
@@ -466,12 +478,12 @@ ob_start();
             <div class="tab-pane fade" id="pills-asset-notes">
 
                 <div class="form-group">
-                    <label>Upload Photo</label>
-                    <input type="file" class="form-control-file" name="file" accept="image/*">
+                    <textarea class="form-control" rows="8" placeholder="Additional notes or configuration details" name="notes"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
+                    <label>Upload Photo</label>
+                    <input type="file" class="form-control-file" name="file" accept="image/*">
                 </div>
 
                 <div class="form-group">

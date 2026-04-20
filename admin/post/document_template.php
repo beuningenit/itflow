@@ -6,11 +6,13 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_document_template'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
 
     mysqli_query($mysqli,"INSERT INTO document_templates SET document_template_name = '$name', document_template_description = '$description', document_template_content = '', document_template_created_by = $session_user_id");
-    
+
     $document_template_id = mysqli_insert_id($mysqli);
 
     $processed_content = mysqli_escape_string(
@@ -35,6 +37,8 @@ if (isset($_POST['add_document_template'])) {
 }
 
 if (isset($_POST['edit_document_template'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     $document_template_id = intval($_POST['document_template_id']);
     $name = sanitizeInput($_POST['name']);
@@ -68,6 +72,8 @@ if (isset($_POST['edit_document_template'])) {
 }
 
 if (isset($_GET['delete_document_template'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     $document_template_id = intval($_GET['delete_document_template']);
 

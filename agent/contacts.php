@@ -262,8 +262,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($archived) { ?>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-info"
-                                    type="submit" form="bulkActions" name="bulk_unarchive_contacts">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                    type="submit" form="bulkActions" name="bulk_restore_contacts">
+                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
@@ -288,11 +288,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-            <div class="table-responsive-sm">
+            <div class="table-responsive">
                 <table class="table border">
                     <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                     <tr>
-                        <td class="bg-light pr-0">
+                        <td class="bg-light checkbox-column">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
@@ -465,7 +465,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td class="pr-0 bg-light">
+                            <td class="bg-light checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?php echo $contact_id ?>">
                                 </div>
@@ -526,23 +526,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
                                             <?php if ($contact_archived_at) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_contact=<?php echo $contact_id; ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <?php } else { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-user-secret mr-2"></i>Anonymize & Archive
                                             </a>
                                             <?php } ?>
 
                                             <?php if ($config_destructive_deletes_enable) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                             <?php } ?>

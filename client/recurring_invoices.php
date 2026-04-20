@@ -80,6 +80,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                         <?php $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $session_client_id");
                         if (mysqli_num_rows($sql) > 0) { ?>
                             <form class="form" action="post.php" method="post">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="set_recurring_payment" value="1">
                                 <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
                                 <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">

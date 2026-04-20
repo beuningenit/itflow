@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_tag'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'tag_model.php';
 
     mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon'");
@@ -24,6 +26,8 @@ if (isset($_POST['add_tag'])) {
 
 if (isset($_POST['edit_tag'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'post/tag_model.php';
 
     $tag_id = intval($_POST['tag_id']);
@@ -39,9 +43,11 @@ if (isset($_POST['edit_tag'])) {
 }
 
 if (isset($_GET['delete_tag'])) {
-    
+
+    validateCSRFToken($_GET['csrf_token']);
+
     $tag_id = intval($_GET['delete_tag']);
-    
+
     $tag_name = sanitizeInput(getFieldById('tags', $tag_id, 'tag_name'));
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");

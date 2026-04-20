@@ -16,8 +16,9 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php if (isset($client_id)) { ?>
-           <input type="hidden" name="client" value="<?php echo $client_id; ?>>">
+           <input type="hidden" name="client_id" value="<?php echo $client_id; ?>>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -83,7 +84,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 </div>
-                                <select class="form-control select2" name="category">
+                                <select class="form-control select2" name="category_id">
                                     <option value="0">- Not Categorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -144,8 +145,8 @@ ob_start();
             </div>
 
             <?php if ($contact_id) { ?>
-                <input type="hidden" name="client" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="contact" value="<?php echo $contact_id; ?>">
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
             <?php } else { ?>
             <div class="tab-pane fade" id="pills-add-contacts">
 
@@ -155,7 +156,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <select class="form-control select2" name="client" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
+                        <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
                             <option value="">- Client -</option>
                             <?php
 
@@ -178,7 +179,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <select class="form-control select2" name="contact" id="contactSelect">
+                        <select class="form-control select2" name="contact_id" id="contactSelect">
                         </select>
                     </div>
                 </div>
@@ -199,6 +200,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                         </div>
                         <select class="form-control select2" name="frequency" required>
+                            <option value="">- Select Frequency -</option>
                             <optgroup label="Days">
                                 <option>Three Days</option>
                                 <option>Weekly</option>
@@ -236,7 +238,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                             </div>
-                            <select class="form-control select2" name="asset">
+                            <select class="form-control select2" name="asset_id">
                                 <option value="0">- None -</option>
 
                                 <?php

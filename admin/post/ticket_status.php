@@ -4,6 +4,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_ticket_status'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     $name = sanitizeInput($_POST['name']);
     $color = sanitizeInput($_POST['color']);
 
@@ -20,6 +22,8 @@ if (isset($_POST['add_ticket_status'])) {
 }
 
 if (isset($_POST['edit_ticket_status'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     $ticket_status_id = intval($_POST['ticket_status_id']);
     $name = sanitizeInput($_POST['name']);

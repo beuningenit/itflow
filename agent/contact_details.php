@@ -476,7 +476,7 @@ if (isset($_GET['contact_id'])) {
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item"
-                                                    href="post.php?unlink_asset_from_contact&contact_id=<?= $contact_id ?>&asset_id=<?= $asset_id ?>"
+                                                    href="post.php?unlink_asset_from_contact&contact_id=<?= $contact_id ?>&asset_id=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     class="btn btn-secondary btn-sm" title="Unlink">
                                                     <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
                                                 </a>
@@ -616,13 +616,13 @@ if (isset($_GET['contact_id'])) {
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item"
-                                                    href="post.php?unlink_credential_from_contact&contact_id=<?php echo $contact_id; ?>&credential_id=<?php echo $credential_id; ?>"
+                                                    href="post.php?unlink_credential_from_contact&contact_id=<?php echo $contact_id; ?>&credential_id=<?php echo $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     class="btn btn-secondary btn-sm" title="Unlink">
                                                     <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?php echo $credential_id; ?>">
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?php echo $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
@@ -709,7 +709,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $software_license_type; ?></td>
                                     <td><?php echo "$seat_count / $software_seats"; ?></td>
                                     <td class="text-center">
-                                        <a href="post.php?unlink_software_from_contact&contact_id=<?php echo $contact_id; ?>&software_id=<?php echo $software_id; ?>" class="btn btn-secondary btn-sm" title="Remove License"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_software_from_contact&contact_id=<?php echo $contact_id; ?>&software_id=<?php echo $software_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Remove License"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -778,7 +778,7 @@ if (isset($_GET['contact_id'])) {
                                                 <?php
                                                 if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $recurring_ticket_id; ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                             </div>
@@ -931,7 +931,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $service_category; ?></td>
                                     <td><?php echo $service_importance; ?></td>
                                     <td class="text-center">
-                                        <a href="post.php?unlink_service_from_contact&contact_id=<?php echo $contact_id; ?>&service_id=<?php echo $service_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_service_from_contact&contact_id=<?php echo $contact_id; ?>&service_id=<?php echo $service_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -997,7 +997,7 @@ if (isset($_GET['contact_id'])) {
                                             data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                             <i class="fas fa-fw fa-eye"></i>
                                         </a>
-                                        <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -1060,7 +1060,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $file_size_KB; ?> KB</td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td class="text-center">
-                                        <a href="post.php?unlink_contact_from_file&contact_id=<?php echo $contact_id; ?>&file_id=<?php echo $file_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_contact_from_file&contact_id=<?php echo $contact_id; ?>&file_id=<?php echo $file_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -1101,6 +1101,14 @@ if (isset($_GET['contact_id'])) {
                             <tbody>
                             <?php
 
+                            $note_types_array = array (
+                                'Call'=>'fa-phone-alt',
+                                'Email'=>'fa-envelope',
+                                'Meeting'=>'fa-handshake',
+                                'In Person'=>'fa-people-arrows',
+                                'Note'=>'fa-sticky-note'
+                            );
+
                             while ($row = mysqli_fetch_assoc($sql_related_notes)) {
                                 $contact_note_id = intval($row['contact_note_id']);
                                 $contact_note_type = nullable_htmlentities($row['contact_note_type']);
@@ -1124,12 +1132,12 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item text-danger" href="post.php?archive_contact_note=<?php echo $contact_note_id; ?>">
+                                                <a class="dropdown-item text-danger" href="post.php?archive_contact_note=<?php echo $contact_note_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact_note=<?php echo $contact_note_id; ?>">
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact_note=<?php echo $contact_note_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
@@ -1171,6 +1179,7 @@ if (isset($_GET['contact_id'])) {
                 "ajax.php",
                 {
                     contact_set_notes: 'TRUE',
+                    csrf_token: '<?= $_SESSION['csrf_token'] ?>',
                     contact_id: contact_id,
                     notes: notes
                 }

@@ -46,4 +46,3 @@ if (empty($install_date)) {
 }
 $notes = sanitizeInput($_POST['notes']);
 $favorite = intval($_POST['favorite'] ?? 0);
-$client_id = intval($_POST['client_id']);

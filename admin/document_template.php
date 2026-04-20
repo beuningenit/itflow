@@ -20,7 +20,7 @@
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i>Document Templates</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-alt mr-2"></i>Document Templates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/document_template/document_template_add.php" data-modal-size="xl">
                 <i class="fas fa-plus mr-2"></i>New Template
@@ -73,14 +73,23 @@
                             $document_template_content = nullable_htmlentities($row['document_template_content']);
                             $document_template_created_by_name = nullable_htmlentities($row['user_name']);
                             $document_template_created_at = nullable_htmlentities($row['document_template_created_at']);
-                            $document_template_updated_at = nullable_htmlentities($row['document_template_updated_at']);
+                            $document_template_updated_at = nullable_htmlentities(getFallback($row['document_template_updated_at']));
 
                     ?>
 
                     <tr>
                         <td>
-                            <a class="text-bold" href="document_template_details.php?document_template_id=<?php echo $document_template_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_template_name; ?></a>
-                            <div class="mt-1 text-secondary"><?php echo $document_template_description; ?></div>
+                            <a class="text-dark ajax-modal" href="#"
+                                data-modal-size="xl"
+                                data-modal-url="modals/document_template/document_template_edit.php?id=<?= $document_template_id ?>">
+                                <div class="media">
+                                    <i class="fas fa-fw fa-2x fa-file-alt mr-2"></i>
+                                    <div class="media-body">
+                                        <div><?= $document_template_name ?></div>
+                                        <div><small class="text-secondary"><?= $document_template_description ?></small></div>
+                                    </div>
+                                </div>
+                            </a>
                         </td>
                         <td>
                             <?php echo $document_template_created_at; ?>
@@ -93,13 +102,17 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="document_template_details.php?document_template_id=<?= $document_template_id ?>">
+                                        <i class="fas fa-fw fa-eye mr-2"></i>View
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-size="xl"
                                         data-modal-url="modals/document_template/document_template_edit.php?id=<?= $document_template_id ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document_template=<?php echo $document_template_id; ?>">
+                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document_template=<?php echo $document_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 </div>

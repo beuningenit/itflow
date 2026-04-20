@@ -231,7 +231,7 @@ if ($item_type == "Document") {
         function showOTP(id, secret) {
             //Send a GET request to ajax.php as guest_ajax.php?get_totp_token=true&totp_secret=SECRET
             jQuery.get(
-                "guest_ajax.php",
+                "/agent/ajax.php",
                 {get_totp_token: 'true', totp_secret: secret},
                 function(data) {
                     //If we get a response from post.php, parse it as JSON

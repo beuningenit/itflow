@@ -15,6 +15,8 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
@@ -39,7 +41,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -56,7 +58,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = nullable_htmlentities($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -64,26 +66,6 @@ ob_start();
                     </div>
 
                 <?php } ?>
-
-                <div class="form-group">
-                    <label>Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="name" placeholder="Network name (VLAN, WAN, LAN2 etc)" maxlength="200" required autofocus>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="description" placeholder="Short Description">
-                    </div>
-                </div>
 
                 <?php if ($client_id) { ?>
                 <div class="form-group">
@@ -111,56 +93,65 @@ ob_start();
                 </div>
                 <?php } ?>
 
+                <div class="form-group">
+                    <label>Name <strong class="text-danger">*</strong></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="name" placeholder="LAN, WAN, VOIP, Uplink" maxlength="200" required autofocus>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="description" placeholder="Guest WiFi, VoIP VLAN, Server LAN, WAN Uplink">
+                    </div>
+                </div>
             </div>
 
             <div class="tab-pane fade" id="pills-network">
                 <div class="form-group">
-                    <label>vLAN</label>
+                    <label>VLAN</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="vlan" placeholder="ex. 20">
+                        <input type="text" class="form-control" inputmode="numeric" name="vlan" placeholder="e.g. 20">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>IP / Network <strong class="text-danger">*</strong></label>
+                    <label>Network (CIDR) <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="network" placeholder="Network or IP ex 192.168.1.0/24" maxlength="200" required>
+                        <input type="text" class="form-control" name="network" placeholder="192.168.1.0/24 or 2001:db8::/64" maxlength="200" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Subnet Mask</label>
+                    <label>Assignable IP Range</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-mask"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-arrows-alt-h"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="subnet" placeholder="ex 255.255.255.0" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control" name="dhcp_range" placeholder="192.168.1.100-192.168.1.200"  maxlength="200">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Gateway <strong class="text-danger">*</strong></label>
+                    <label>Gateway</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" maxlength="200" data-inputmask="'alias': 'ip'" data-mask required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>DHCP Range / IPs</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199"  maxlength="200">
+                        <input type="text" class="form-control" name="gateway" placeholder="192.168.1.1 or 2001:db8::1" maxlength="200">
                     </div>
                 </div>
 
@@ -171,9 +162,9 @@ ob_start();
                     <label>Primary DNS</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="primary_dns" placeholder="ex 9.9.9.9"  maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control" name="primary_dns" placeholder="9.9.9.9 or 2620:fe::fe"  maxlength="200">
                     </div>
                 </div>
 
@@ -181,9 +172,9 @@ ob_start();
                     <label>Secondary DNS</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="secondary_dns" placeholder="ex 1.1.1.1"  maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control" name="secondary_dns" placeholder="1.1.1.1 or 2606:4700:4700::1111"  maxlength="200">
                     </div>
                 </div>
             </div>

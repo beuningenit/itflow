@@ -51,26 +51,17 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 </ol>
 
 <div class="row">
-    <div class="col-9">
+    <div class="col-md-9">
 
         <div class="card card-dark">
             <div class="card-header">
-                <h3 class="card-title mt-2">
-                    <div class="media">
-                        <i class="fa fa-fw fa-2x fa-life-ring mr-3"></i>
-                        <div class="media-body">
-                            <h3 class="mb-0"><?php echo $ticket_template_name; ?></h3>
-                            <div><small class="text-secondary"><?php //echo $ticket_template_description; ?></small></div>
-                        </div>
-                    </div>
-                </h3>
+                <h3 class="card-title mt-1"><?php echo $ticket_template_name; ?></h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal">
+                    <button type="button" class="btn btn-tool btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal">
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
             </div>
-            <h5><?php echo $ticket_template_subject; ?></h5>
             <div class="card-body prettyContent">
                 <?php echo $ticket_template_details; ?>
             </div>
@@ -78,7 +69,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
     </div>
 
-    <div class="col-3">
+    <div class="col-md-3">
 
         <div class="card card-dark">
             <div class="card-header">
@@ -86,6 +77,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
             </div>
             <div class="card-body">
                 <form action="post.php" method="post" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
                     <div class="form-group">
                         <div class="input-group input-group-sm">
@@ -154,8 +146,9 @@ new Sortable(document.querySelector('table#tasks tbody'), {
             order: index
         }));
 
-        $.post('ajax.php', {
+        $.post('/agent/ajax.php', {
             update_task_templates_order: true,
+            csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             ticket_template_id: <?php echo $ticket_template_id; ?>,
             positions: positions
         });

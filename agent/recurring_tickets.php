@@ -86,13 +86,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-redo-alt mr-2"></i>Recurring Tickets</h3>
+        <?php if (lookupUserPermission("module_support") >= 2) { ?>
         <div class='card-tools'>
-            <div class="float-left">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>" data-modal-size="lg">
-                    <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Ticket</span>
-                </button>
-            </div>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>" data-modal-size="lg">
+                <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Ticket</span>
+            </button>
         </div>
+        <?php } ?>
     </div>
 
     <div class="card-body">
@@ -212,7 +212,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
         <hr>
 
-        <div class="table-responsive-sm">
+        <div class="table-responsive">
 
             <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
@@ -220,7 +220,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="<?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                         <tr>
-                            <td class="pr-0">
+                            <td class="checkbox-column">
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
@@ -297,7 +297,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                             <tr>
-                                <td class="pr-0">
+                                <td class="checkbox-column">
                                     <div class="form-check">
                                         <input class="form-check-input bulk-select" type="checkbox" name="recurring_ticket_ids[]" value="<?= $recurring_ticket_id ?>">
                                     </div>

@@ -8,11 +8,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_quote'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     require_once 'quote_model.php';
 
-    $client_id = intval($_POST['client']);
+    $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
 
     // Atomically increment and get the new quote number
     mysqli_query($mysqli, "
@@ -46,12 +50,16 @@ if (isset($_POST['add_quote'])) {
 
 if (isset($_POST['add_quote_copy'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
-    $client_id = intval($_POST['client']);
+    $client_id = intval($_POST['client_id']);
     $date = sanitizeInput($_POST['date']);
     $expire = sanitizeInput($_POST['expire']);
+
+    enforceClientAccess();
 
     $config_quote_prefix = sanitizeInput($config_quote_prefix);
 
@@ -86,7 +94,7 @@ if (isset($_POST['add_quote_copy'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied!', history_quote_id = $new_quote_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = sanitizeInput($row['item_name']);
@@ -99,7 +107,7 @@ if (isset($_POST['add_quote_copy'])) {
         $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
+        mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
     }
 
     logAction("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from quote $original_quote_prefix$original_quote_number", $client_id, $new_quote_id);
@@ -113,6 +121,8 @@ if (isset($_POST['add_quote_copy'])) {
 }
 
 if (isset($_POST['add_quote_to_invoice'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 
@@ -132,6 +142,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     $client_id = intval($row['quote_client_id']);
     $category_id = intval($row['quote_category_id']);
+
+    enforceClientAccess();
 
     $config_invoice_prefix = sanitizeInput($config_invoice_prefix);
 
@@ -155,7 +167,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from quote $quote_prefix$quote_number', history_invoice_id = $new_invoice_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = sanitizeInput($row['item_name']);
@@ -177,6 +189,22 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
 
+    // Check & update any quote-ticket association
+    $ticket_id = 0;
+    $sql_ticket = "SELECT ticket_id, ticket_prefix, ticket_number
+        FROM tickets
+        WHERE ticket_quote_id = $quote_id
+        LIMIT 1";
+    $result_ticket = mysqli_query($mysqli, $sql_ticket);
+
+    if ($result_ticket && $row = mysqli_fetch_assoc($result_ticket)) {
+        $ticket_id = intval($row['ticket_id']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $new_invoice_id WHERE ticket_id = $ticket_id AND ticket_invoice_id = '0'"); // Only if ticket doesn't already have an invoice
+    }
+
     customAction('invoice_create', $new_invoice_id);
 
     flash_alert("Invoice created from quote <strong>$quote_prefix$quote_number</strong>");
@@ -187,6 +215,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
 if (isset($_POST['add_quote_item'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
@@ -196,6 +226,10 @@ if (isset($_POST['add_quote_item'])) {
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
     $item_order = intval($_POST['item_order']);
+
+    $client_id = intval(getFieldById('quotes', $quote_id, 'quote_client_id'));
+
+    enforceClientAccess();
 
     $subtotal = $price * $qty;
 
@@ -210,7 +244,7 @@ if (isset($_POST['add_quote_item'])) {
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_quote_id = $quote_id");
 
     // Get Quote Details
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
@@ -221,7 +255,7 @@ if (isset($_POST['add_quote_item'])) {
     $client_id = intval($row['quote_client_id']);
 
     //add up the total of all items
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -239,7 +273,68 @@ if (isset($_POST['add_quote_item'])) {
 
 }
 
+if (isset($_POST['edit_quote_item'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+
+    $item_id = intval($_POST['item_id']);
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
+    $qty = floatval($_POST['qty']);
+    $price = floatval($_POST['price']);
+    $tax_id = intval($_POST['tax_id']);
+    $product_id = intval($_POST['product_id']);
+
+    $subtotal = $price * $qty;
+
+    if ($tax_id > 0) {
+        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $row = mysqli_fetch_assoc($sql);
+        $tax_percent = floatval($row['tax_percent']);
+        $tax_amount = $subtotal * $tax_percent / 100;
+    } else {
+        $tax_amount = 0;
+    }
+
+    $total = $subtotal + $tax_amount;
+
+    // Get Quote ID from Item ID
+    $sql = mysqli_query($mysqli,"SELECT item_quote_id FROM quote_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_assoc($sql);
+    $quote_id = intval($row['item_quote_id']);
+
+    //Get Discount Amount
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_assoc($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = intval($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+    $quote_discount = floatval($row['quote_discount_amount']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"UPDATE quote_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
+
+    //Update Quote Balances by tallying up items
+    $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM quote_items WHERE item_quote_id = $quote_id");
+    $row = mysqli_fetch_assoc($sql_quote_total);
+    $new_quote_amount = floatval($row['quote_total']) - $quote_discount;
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
+
+    logAction("Quote", "Edit", "$session_name edited item $name on quote $quote_prefix$quote_number", $client_id, $quote_id);
+
+    flash_alert("Item <strong>$name</strong> updated");
+
+    redirect();
+
+}
+
 if (isset($_POST['quote_note'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 
@@ -253,6 +348,8 @@ if (isset($_POST['quote_note'])) {
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id");
 
     logAction("Quote", "Edit", "$session_name added notes to quote $quote_prefix$quote_number", $client_id, $quote_id);
@@ -264,6 +361,8 @@ if (isset($_POST['quote_note'])) {
 }
 
 if (isset($_POST['edit_quote'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 
@@ -278,8 +377,10 @@ if (isset($_POST['edit_quote'])) {
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
+    enforceClientAccess();
+
     //Calculate the new quote amount
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -299,6 +400,8 @@ if (isset($_POST['edit_quote'])) {
 
 if (isset($_GET['delete_quote'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 3);
 
     $quote_id = intval($_GET['delete_quote']);
@@ -310,13 +413,15 @@ if (isset($_GET['delete_quote'])) {
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
 
     //Delete Items Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql)) {;
         $item_id = intval($row['item_id']);
-        mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+        mysqli_query($mysqli,"DELETE FROM quote_items WHERE item_id = $item_id");
     }
 
     //Delete History Associated with the Quote
@@ -341,11 +446,13 @@ if (isset($_GET['delete_quote'])) {
 
 if (isset($_GET['delete_quote_item'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_GET['delete_quote_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
     $item_name = sanitizeInput($row['item_name']);
     $quote_id = intval($row['item_quote_id']);
@@ -359,11 +466,13 @@ if (isset($_GET['delete_quote_item'])) {
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
+    enforceClientAccess();
+
     $new_quote_amount = floatval($row['quote_amount']) - $item_total;
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+    mysqli_query($mysqli,"DELETE FROM quote_items WHERE item_id = $item_id");
 
     logAction("Quote", "Edit", "$session_name removed item $item_name from $quote_prefix$quote_number", $client_id, $quote_id);
 
@@ -375,6 +484,8 @@ if (isset($_GET['delete_quote_item'])) {
 
 if (isset($_GET['mark_quote_sent'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_GET['mark_quote_sent']);
@@ -384,6 +495,8 @@ if (isset($_GET['mark_quote_sent'])) {
     $quote_prefix = sanitizeInput($row['quote_prefix']);
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
 
@@ -399,6 +512,8 @@ if (isset($_GET['mark_quote_sent'])) {
 
 if (isset($_GET['accept_quote'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_GET['accept_quote']);
@@ -408,6 +523,8 @@ if (isset($_GET['accept_quote'])) {
     $quote_prefix = sanitizeInput($row['quote_prefix']);
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
 
@@ -425,6 +542,8 @@ if (isset($_GET['accept_quote'])) {
 
 if (isset($_GET['decline_quote'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_GET['decline_quote']);
@@ -434,6 +553,8 @@ if (isset($_GET['decline_quote'])) {
     $quote_prefix = sanitizeInput($row['quote_prefix']);
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
 
@@ -450,6 +571,8 @@ if (isset($_GET['decline_quote'])) {
 }
 
 if (isset($_GET['email_quote'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 
@@ -475,6 +598,8 @@ if (isset($_GET['email_quote'])) {
     $client_name = sanitizeInput($row['client_name']);
     $contact_name = sanitizeInput($row['contact_name']);
     $contact_email = sanitizeInput($row['contact_email']);
+
+    enforceClientAccess();
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
@@ -529,6 +654,8 @@ if (isset($_GET['email_quote'])) {
 
 if (isset($_GET['mark_quote_invoiced'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_GET['mark_quote_invoiced']);
@@ -538,6 +665,8 @@ if (isset($_GET['mark_quote_invoiced'])) {
     $quote_prefix = sanitizeInput($row['quote_prefix']);
     $quote_number = sanitizeInput($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id");
 
@@ -553,6 +682,8 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
 if(isset($_POST['export_quotes_csv'])){
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales');
 
     if ($_POST['client_id']) {
@@ -561,13 +692,14 @@ if(isset($_POST['export_quotes_csv'])){
         // Get Client Name for logging
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        enforceClientAccess();
     } else {
-        $client_query = '';
+        $client_query = 'WHERE 1=1';
         $client_name = '';
         $file_name_prepend = "$session_company_name";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes $client_query ORDER BY quote_number ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes LEFT JOIN clients ON client_id = quote_client_id $client_query $access_permission_query ORDER BY quote_number ASC");
 
     $num_rows = mysqli_num_rows($sql);
 
@@ -610,6 +742,10 @@ if(isset($_POST['export_quotes_csv'])){
 }
 
 if (isset($_GET['export_quote_pdf'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_sales');
 
     $quote_id = intval($_GET['export_quote_pdf']);
 
@@ -658,6 +794,8 @@ if (isset($_GET['export_quote_pdf'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
+
+    enforceClientAccess();
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
@@ -762,7 +900,7 @@ if (isset($_GET['export_quote_pdf'])) {
     $sub_total = 0;
     $total_tax = 0;
 
-    $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
+    $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
     while ($item = mysqli_fetch_assoc($sql_items)) {
         $name = $item['item_name'];
         $desc = $item['item_description'];

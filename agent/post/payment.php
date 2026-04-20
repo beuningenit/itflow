@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_payment'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -20,6 +22,10 @@ if (isset($_POST['add_payment'])) {
     $payment_method = sanitizeInput($_POST['payment_method']);
     $reference = sanitizeInput($_POST['reference']);
     $email_receipt = intval($_POST['email_receipt']);
+
+    $client_id = intval(getFieldById('invoices', $invoice_id, 'invoice_client_id'));
+
+    enforceClientAccess();
 
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $balance) {
@@ -49,7 +55,6 @@ if (isset($_POST['add_payment'])) {
         $invoice_number = intval($row['invoice_number']);
         $invoice_url_key = sanitizeInput($row['invoice_url_key']);
         $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-        $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
@@ -173,6 +178,8 @@ if (isset($_POST['add_payment'])) {
 
 if (isset($_POST['edit_payment'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 3);
     enforceUserPermission('module_financial', 3);
 
@@ -182,6 +189,10 @@ if (isset($_POST['edit_payment'])) {
     $account = intval($_POST['account']);
     $payment_method = sanitizeInput($_POST['payment_method']);
     $reference = sanitizeInput($_POST['reference']);
+
+    $client_id = intval(getFieldById('payments', $payment_id, 'payment_client_id'));
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE payments SET payment_date = '$date', payment_amount = $amount, payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference' WHERE payment_id = $payment_id");
 
@@ -198,6 +209,8 @@ Apply Credit Not ready for use 2025-08-27 - JQ
 
 if (isset($_POST['apply_credit'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -213,6 +226,8 @@ if (isset($_POST['apply_credit'])) {
     $invoice_credit_amount = floatval($row['invoice_credit_amount']);
     $invoice_amount = floatval('invoice_amount');
     $client_id = intval($row['invoice_client_id']);
+
+    enforceClientAccess();
 
     // Get Credit Balance
     $sql_credit_balance = mysqli_query($mysqli, "SELECT SUM(credit_amount) AS credit_balance FROM credits WHERE credit_client_id = $client_id");
@@ -333,6 +348,8 @@ if (isset($_POST['add_payment_stripe'])) {
     $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
     $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+
+    enforceClientAccess();
 
     // Get ITFlow company details
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
@@ -685,6 +702,8 @@ if (isset($_GET['add_payment_stripe'])) {
 
 if (isset($_POST['add_bulk_payment'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -698,6 +717,8 @@ if (isset($_POST['add_bulk_payment'])) {
     $payment_method = sanitizeInput($_POST['payment_method']);
     $reference = sanitizeInput($_POST['reference']);
     $email_receipt = intval($_POST['email_receipt']);
+
+    enforceClientAccess();
 
     // Check if bulk_payment_amount exceeds total_account_balance
     if ($bulk_payment_amount > $total_account_balance) {
@@ -817,6 +838,8 @@ if (isset($_POST['add_bulk_payment'])) {
 
 if (isset($_GET['delete_payment'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -826,6 +849,9 @@ if (isset($_GET['delete_payment'])) {
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['payment_invoice_id']);
     $deleted_payment_amount = floatval($row['payment_amount']);
+    $client_id = intval($row['payment_client_id']);
+
+    enforceClientAccess();
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS total_payments_amount FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -837,7 +863,6 @@ if (isset($_GET['delete_payment'])) {
     $row = mysqli_fetch_assoc($sql);
     $invoice_prefix = sanitizeInput($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $client_id = intval($row['invoice_client_id']);
     $invoice_amount = floatval($row['invoice_amount']);
 
     //Calculate the Invoice balance
@@ -871,18 +896,23 @@ if (isset($_GET['delete_payment'])) {
 
 if (isset($_POST['export_payments_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_financial');
+
     if ($_POST['client_id']) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND invoice_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        enforceClientAccess();
     } else {
-        $client_query = '';
+        $client_query = '1=1';
         $client_name = '';
         $file_name_prepend = "$session_company_name-";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE payment_invoice_id = invoice_id $client_query ORDER BY payment_date ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id LEFT JOIN clients ON client_id = invoice_client_id WHERE $client_query $access_permission_query ORDER BY payment_date ASC");
 
     $num_rows = mysqli_num_rows($sql);
 

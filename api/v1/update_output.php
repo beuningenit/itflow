@@ -16,7 +16,7 @@ if (isset($update_count) && is_numeric($update_count) && $update_count > 0) {
 // Query returned false: something went wrong, or it was declined due to required variables missing
 else {
     $return_arr['success'] = "False";
-    $return_arr['message'] = "Auth success but update query failed/returned no results. Ensure ALL required variables are provided and database schema is up-to-date. Most likely cause: non-existent module ID (i.e. bad contact ID/ticket ID/etc).";
+    $return_arr['message'] = "Auth success but update query failed/returned no results. Ensure ALL required variables are provided and database schema is up-to-date. Most likely cause: non-existent module ID (i.e. bad contact ID/ticket ID/etc) or no rows changed.";
 
     // Log any database/schema related errors to the PHP Error log
     if (mysqli_error($mysqli)) {

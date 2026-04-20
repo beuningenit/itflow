@@ -13,7 +13,7 @@ if (isset($_GET['domain_id'])) {
 } elseif (isset($_GET['domain_name'])) {
     // Domain by name
     $name = mysqli_real_escape_string($mysqli, $_GET['domain_name']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$name' AND domain_client_id LIKE '$client_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$name' AND domain_client_id LIKE '$client_id' ORDER BY domain_id LIMIT $limit OFFSET $offset");
 
 } else {
     // All domains (by client ID or all in general if key permits)

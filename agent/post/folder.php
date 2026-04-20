@@ -8,12 +8,16 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['create_folder'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $folder_location = intval($_POST['folder_location']);
     $folder_name = sanitizeInput($_POST['folder_name']);
     $parent_folder = intval($_POST['parent_folder']);
+
+    enforceClientAccess();
 
     // Document folder add query
     $add_folder = mysqli_query($mysqli,"INSERT INTO folders SET folder_name = '$folder_name', parent_folder = $parent_folder, folder_location = $folder_location, folder_client_id = $client_id");
@@ -29,6 +33,8 @@ if (isset($_POST['create_folder'])) {
 
 if (isset($_POST['rename_folder'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $folder_id = intval($_POST['folder_id']);
@@ -39,6 +45,8 @@ if (isset($_POST['rename_folder'])) {
     $row = mysqli_fetch_assoc($sql);
     $old_folder_name = sanitizeInput($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
+
+    enforceClientAccess();
 
     // Folder edit query
     mysqli_query($mysqli,"UPDATE folders SET folder_name = '$folder_name' WHERE folder_id = $folder_id");
@@ -53,6 +61,8 @@ if (isset($_POST['rename_folder'])) {
 
 if (isset($_GET['delete_folder'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 3);
 
     $folder_id = intval($_GET['delete_folder']);
@@ -62,6 +72,8 @@ if (isset($_GET['delete_folder'])) {
     $row = mysqli_fetch_assoc($sql);
     $folder_name = sanitizeInput($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM folders WHERE folder_id = $folder_id");
 

@@ -87,16 +87,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark ajax-modal" href="#" data-modal-url="modals/project_template/project_template_edit.php?project_template_id=<?= $project_template_id ?>">
+                            <a class="text-dark" href="project_template_details.php?project_template_id=<?= $project_template_id ?>">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
                                     <div class="media-body">
                                         <div>
-                                            <a href="project_template_details.php?project_template_id=<?php echo $project_template_id; ?>">
-                                                <?php echo $project_template_name; ?>
-                                            </a>
+                                            <?= $project_template_name ?>
                                         </div>
-                                        <div><small class="text-secondary"><?php echo $project_template_description; ?></small></div>
+                                        <div>
+                                            <small class="text-secondary"><?= $project_template_description ?></small>
+                                        </div>
                                     </div>
                                 </div>
                             </a>
@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <?php if($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?php echo $project_template_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?php echo $project_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     <?php } ?>

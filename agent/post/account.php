@@ -7,9 +7,10 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_account'])) {
-    
-    enforceUserPermission('module_financial', 2);
+
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_financial', 2);
 
     $name = sanitizeInput($_POST['name']);
     $opening_balance = floatval($_POST['opening_balance']);
@@ -27,9 +28,10 @@ if (isset($_POST['add_account'])) {
 }
 
 if (isset($_POST['edit_account'])) {
-    
-    enforceUserPermission('module_financial', 2);
+
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_financial', 2);
 
     $account_id = intval($_POST['account_id']);
     $name = sanitizeInput($_POST['name']);
@@ -46,10 +48,11 @@ if (isset($_POST['edit_account'])) {
 }
 
 if (isset($_GET['archive_account'])) {
-    
-    enforceUserPermission('module_financial', 2);
 
     validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_financial', 2);
+
     $account_id = intval($_GET['archive_account']);
 
     $account_name = sanitizeInput(getFieldById('accounts', $account_id, 'account_name'));
@@ -66,7 +69,9 @@ if (isset($_GET['archive_account'])) {
 
 // Not used anywhere?
 if (isset($_GET['delete_account'])) {
-    
+
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_financial', 3);
 
     $account_id = intval($_GET['delete_account']);

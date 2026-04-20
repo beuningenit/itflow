@@ -31,10 +31,12 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">
+    <input type="hidden" name="vendor" value="<?php echo $expense_vendor_id; ?>">
+    <input type="hidden" name="category" value="<?php echo $expense_category_id; ?>">
+
     <div class="modal-body">
-        <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">
-        <input type="hidden" name="vendor" value="<?php echo $expense_vendor_id; ?>">
-        <input type="hidden" name="category" value="<?php echo $expense_category_id; ?>">
 
         <div class="form-row">
 

@@ -8,9 +8,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_certificate'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     require_once 'certificate_model.php';
+
+    $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
 
     // Parse public key data for a manually provided public key
     if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
@@ -42,10 +48,17 @@ if (isset($_POST['add_certificate'])) {
 
 if (isset($_POST['edit_certificate'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     require_once 'certificate_model.php';
+
     $certificate_id = intval($_POST['certificate_id']);
+
+    $client_id = intval(getFieldById('certificates', $certificate_id, 'certificate_client_id'));
+
+    enforceClientAccess();
 
     // Parse public key data for a manually provided public key
     if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
@@ -108,6 +121,8 @@ if (isset($_POST['edit_certificate'])) {
 
 if (isset($_GET['archive_certificate'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_support', 2);
 
     $certificate_id = intval($_GET['archive_certificate']);
@@ -117,6 +132,8 @@ if (isset($_GET['archive_certificate'])) {
     $row = mysqli_fetch_assoc($sql);
     $certificate_name = sanitizeInput($row['certificate_name']);
     $client_id = intval($row['certificate_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
 
@@ -128,11 +145,13 @@ if (isset($_GET['archive_certificate'])) {
 
 }
 
-if (isset($_GET['unarchive_certificate'])) {
+if (isset($_GET['restore_certificate'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 2);
 
-    $certificate_id = intval($_GET['unarchive_certificate']);
+    $certificate_id = intval($_GET['restore_certificate']);
 
     // Get Certificate Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
@@ -140,9 +159,11 @@ if (isset($_GET['unarchive_certificate'])) {
     $certificate_name = sanitizeInput($row['certificate_name']);
     $client_id = intval($row['certificate_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
 
-    logAction("Certificate", "Unarchive", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
+    logAction("Certificate", "Restore", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
 
     flash_alert("Certificate <strong>$certificate_name</strong> restored");
 
@@ -151,6 +172,8 @@ if (isset($_GET['unarchive_certificate'])) {
 }
 
 if (isset($_GET['delete_certificate'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 3);
 
@@ -161,6 +184,8 @@ if (isset($_GET['delete_certificate'])) {
     $row = mysqli_fetch_assoc($sql);
     $certificate_name = sanitizeInput($row['certificate_name']);
     $client_id = intval($row['certificate_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id");
 
@@ -194,6 +219,8 @@ if (isset($_POST['bulk_delete_certificates'])) {
             $certificate_name = sanitizeInput($row['certificate_name']);
             $client_id = intval($row['certificate_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
 
             logAction("Certificate", "Delete", "$session_name deleted certificate $certificate_name", $client_id);
@@ -212,6 +239,8 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
 if (isset($_POST['export_certificates_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support');
 
     if ($_POST['client_id']) {
@@ -219,13 +248,14 @@ if (isset($_POST['export_certificates_csv'])) {
         $client_query = "AND certificate_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        enforceClientAccess();
     } else {
         $client_query = '';
         $client_id = 0;
         $file_name_prepend = "$session_company_name-";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_archived_at IS NULL $client_query ORDER BY certificate_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM certificates LEFT JOIN clients ON client_id = certificate_client_id WHERE certificate_archived_at IS NULL $client_query $access_permission_query ORDER BY certificate_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 

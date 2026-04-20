@@ -8,6 +8,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <div class="modal-body">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -29,16 +30,6 @@
                         <div class="tab-pane fade show active" id="pills-event">
 
                             <div class="form-group">
-                                <label>Title <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="title" placeholder="Title of the event" maxlength="200" required autofocus>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
                                 <label>Calendar <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -58,6 +49,16 @@
                                         <?php } ?>
 
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Title <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="title" placeholder="Title of the event" maxlength="200" required autofocus>
                                 </div>
                             </div>
 
@@ -119,7 +120,7 @@
                         <div class="tab-pane fade" id="pills-attendees">
 
                             <?php if (isset($client_id)) { ?>
-                                <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                             <?php } else{ ?>
 
                                 <div class="form-group">
@@ -128,7 +129,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                         </div>
-                                        <select class="form-control select2" name="client">
+                                        <select class="form-control select2" name="client_id">
                                             <option value="">- Client -</option>
                                             <?php
 

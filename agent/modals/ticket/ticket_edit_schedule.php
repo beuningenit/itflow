@@ -32,6 +32,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
 
         <div class="form-group">
@@ -60,7 +61,7 @@ ob_start();
 
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
-        <a href="post.php?cancel_ticket_schedule=<?php echo htmlspecialchars($ticket_id); ?>" class="btn btn-danger text-bold">
+        <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger text-bold">
             <i class="fa fa-trash mr-2"></i>Cancel Scheduled Time
         </a>
     <?php } ?>

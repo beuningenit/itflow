@@ -8,9 +8,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if(isset($_POST['add_location'])){
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     require_once 'location_model.php';
+
+    $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
 
     if(!file_exists("../uploads/clients/$client_id")) {
         mkdir("../uploads/clients/$client_id");
@@ -60,6 +66,8 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     require_once 'location_model.php';
@@ -67,9 +75,12 @@ if(isset($_POST['edit_location'])){
     $location_id = intval($_POST['location_id']);
 
     // Get old location photo
-    $sql = mysqli_query($mysqli,"SELECT location_photo FROM locations WHERE location_id = $location_id");
+    $sql = mysqli_query($mysqli,"SELECT location_photo, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
     $existing_file_name = sanitizeInput($row['location_photo']);
+    $client_id = intval($row['location_client_id']);
+
+    enforceClientAccess();
 
     if(!file_exists("../uploads/clients/$client_id")) {
         mkdir("../uploads/clients/$client_id");
@@ -122,6 +133,8 @@ if(isset($_POST['edit_location'])){
 
 if(isset($_GET['archive_location'])){
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     $location_id = intval($_GET['archive_location']);
@@ -131,6 +144,8 @@ if(isset($_GET['archive_location'])){
     $row = mysqli_fetch_assoc($sql);
     $location_name = sanitizeInput($row['location_name']);
     $client_id = intval($row['location_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
@@ -142,11 +157,13 @@ if(isset($_GET['archive_location'])){
 
 }
 
-if(isset($_GET['unarchive_location'])){
+if(isset($_GET['restore_location'])){
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_client', 2);
 
-    $location_id = intval($_GET['unarchive_location']);
+    $location_id = intval($_GET['restore_location']);
 
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
@@ -154,9 +171,11 @@ if(isset($_GET['unarchive_location'])){
     $location_name = sanitizeInput($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
+    enforceClientAccess();
+
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-    logAction("Location", "Unarchive", "$session_name unarchived location $location_name", $client_id, $location_id);
+    logAction("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
     flash_alert("Location <strong>$location_name</strong> restored");
 
@@ -165,6 +184,8 @@ if(isset($_GET['unarchive_location'])){
 }
 
 if(isset($_GET['delete_location'])){
+
+    validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_client', 3);
 
@@ -175,6 +196,8 @@ if(isset($_GET['delete_location'])){
     $row = mysqli_fetch_assoc($sql);
     $location_name = sanitizeInput($row['location_name']);
     $client_id = intval($row['location_client_id']);
+
+    enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
 
@@ -187,6 +210,8 @@ if(isset($_GET['delete_location'])){
 }
 
 if (isset($_POST['bulk_assign_location_tags'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
 
@@ -204,6 +229,8 @@ if (isset($_POST['bulk_assign_location_tags'])) {
             $row = mysqli_fetch_assoc($sql);
             $location_name = sanitizeInput($row['location_name']);
             $client_id = intval($row['location_client_id']);
+
+            enforceClientAccess();
 
             if($_POST['bulk_remove_tags']) {
                 // Delete tags if chosed to do so
@@ -238,8 +265,9 @@ if (isset($_POST['bulk_assign_location_tags'])) {
 
 if (isset($_POST['bulk_archive_locations'])) {
 
-    enforceUserPermission('module_client', 2);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
 
     if (isset($_POST['location_ids'])) {
 
@@ -256,6 +284,8 @@ if (isset($_POST['bulk_archive_locations'])) {
             $location_name = sanitizeInput($row['location_name']);
             $location_primary = intval($row['location_primary']);
             $client_id = intval($row['location_client_id']);
+
+            enforceClientAccess();
 
             if($location_primary == 0) {
                 mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
@@ -278,7 +308,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
 }
 
-if (isset($_POST['bulk_unarchive_locations'])) {
+if (isset($_POST['bulk_restore_locations'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
@@ -289,7 +319,7 @@ if (isset($_POST['bulk_unarchive_locations'])) {
         // Get Selected Count
         $count = count($_POST['location_ids']);
 
-        // Cycle through array and unarchive
+        // Cycle through array and restore
         foreach ($_POST['location_ids'] as $location_id) {
 
             $location_id = intval($location_id);
@@ -300,15 +330,17 @@ if (isset($_POST['bulk_unarchive_locations'])) {
             $location_name = sanitizeInput($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-            logAction("Location", "Unarchive", "$session_name unarchived location $location_name", $client_id, $location_id);
+            logAction("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
         }
 
-        logAction("Location", "Bulk Unarchive", "$session_name unarchived $count location(s)", $client_id);
+        logAction("Location", "Bulk Restore", "$session_name restored $count location(s)", $client_id);
 
-        flash_alert("Unarchived <strong>$count</strong> location(s)");
+        flash_alert("Restored <strong>$count</strong> location(s)");
 
     }
 
@@ -338,6 +370,8 @@ if (isset($_POST['bulk_delete_locations'])) {
             $location_name = sanitizeInput($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
+            enforceClientAccess();
+
             mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id");
 
             logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
@@ -356,6 +390,10 @@ if (isset($_POST['bulk_delete_locations'])) {
 
 if(isset($_POST['export_locations_csv'])){
 
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client');
+
     if ($_POST['client_id']) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND location_client_id = $client_id";
@@ -368,7 +406,7 @@ if(isset($_POST['export_locations_csv'])){
     }
 
     //Locations
-    $sql = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_archived_at IS NULL $client_query ORDER BY location_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM locations LEFT JOIN clients ON client_id = location_client_id WHERE location_archived_at IS NULL AND client_archived_at IS NULL $client_query $access_permission_query ORDER BY location_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 
@@ -410,9 +448,14 @@ if(isset($_POST['export_locations_csv'])){
 
 if (isset($_POST["import_locations_csv"])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
+
     $error = false;
 
     if (!empty($_FILES["file"]["tmp_name"])) {

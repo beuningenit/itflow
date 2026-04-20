@@ -9,6 +9,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 if (isset($_POST['add_tax'])) {
 
     validateCSRFToken($_POST['csrf_token']);
+
     $name = sanitizeInput($_POST['name']);
     $percent = floatval($_POST['percent']);
 
@@ -27,6 +28,7 @@ if (isset($_POST['add_tax'])) {
 if (isset($_POST['edit_tax'])) {
 
     validateCSRFToken($_POST['csrf_token']);
+
     $tax_id = intval($_POST['tax_id']);
     $name = sanitizeInput($_POST['name']);
     $percent = floatval($_POST['percent']);
@@ -42,8 +44,9 @@ if (isset($_POST['edit_tax'])) {
 }
 
 if (isset($_GET['archive_tax'])) {
-    
+
     validateCSRFToken($_GET['csrf_token']);
+
     $tax_id = intval($_GET['archive_tax']);
 
     $tax_name = sanitizeInput(getFieldById('taxes', $tax_id, 'tax_name'));
@@ -59,7 +62,9 @@ if (isset($_GET['archive_tax'])) {
 }
 
 if (isset($_GET['delete_tax'])) {
-    
+
+    validateCSRFToken($_GET['csrf_token']);
+
     $tax_id = intval($_GET['delete_tax']);
 
     $tax_name = sanitizeInput(getFieldById('taxes', $tax_id, 'tax_name'));

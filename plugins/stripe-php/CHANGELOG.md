@@ -1,4 +1,153 @@
 # Changelog
+
+## 20.0.0 - 2026-03-25
+
+This release changes the pinned API version to `2026-03-25.dahlia` and contains breaking changes (prefixed with ⚠️ below). There's also a [detailed migration guide](https://github.com/stripe/stripe-php/wiki/Migration-guide-for-v20) to simplify your upgrade process.
+
+Please review details for the breaking changes and alternatives in the [Stripe API changelog](https://docs.stripe.com/changelog/dahlia) before upgrading.
+
+* ⚠️ **Breaking change:** [#2038](https://github.com/stripe/stripe-php/pull/2038) Drop support for PHP < 7.2. This is also the **last major version to support PHP 7.2 and 7.3**. Please upgrade to 7.4+ before September 2026. See the [versioning policy](https://docs.stripe.com/sdks/versioning?lang=php#stripe-sdk-language-version-support-policy) for more information.
+* ⚠️ **Breaking change:** [#2042](https://github.com/stripe/stripe-php/pull/2042) Preserve null values in v2 JSON request bodies
+  - The SDK now preserves and sends `null` when set in V2 API metadata and params, enabling you to clear metadata entries and some unsettable properties for V2 APIs.
+  - ⚠️ The `Util::objectsToIds()` method now has a required `$serializeNull` parameter to indicate if null values set in the object should be output in the resulting hash. This is relevant for V2 POST APIs to let callers clear emptyable values.  
+* [#1917](https://github.com/stripe/stripe-php/pull/1917) Avoid using func_get_args
+* [#2011](https://github.com/stripe/stripe-php/pull/2011) Ensure that `previous_attributes` is always an instance of `StripeObject`
+* [#2033](https://github.com/stripe/stripe-php/pull/2033) Add runtime support for V2 int64 string-encoded fields
+  
+### ⚠️ Breaking changes due to changes in the Stripe API
+
+* [#2041](https://github.com/stripe/stripe-php/pull/2041) ⚠️ Throw an error when using the wrong webhook parsing method
+* Generated changes from [#2046](https://github.com/stripe/stripe-php/pull/2046), [#2044](https://github.com/stripe/stripe-php/pull/2044), [#2025](https://github.com/stripe/stripe-php/pull/2025)
+  * Add support for `upi_payments` on `Account.capabilities`, `Account.create().$params.capability`, and `Account.update().$params.capability`
+  * Add support for `upi` on `Charge.payment_method_details`, `Checkout.Session.payment_method_options`, `Checkout\Session.create().$params.payment_method_option`, `ConfirmationToken.create().$params.payment_method_datum`, `ConfirmationToken.payment_method_preview`, `Mandate.payment_method_details`, `PaymentAttemptRecord.payment_method_details`, `PaymentIntent.confirm().$params.payment_method_datum`, `PaymentIntent.confirm().$params.payment_method_option`, `PaymentIntent.create().$params.payment_method_datum`, `PaymentIntent.create().$params.payment_method_option`, `PaymentIntent.payment_method_options`, `PaymentIntent.update().$params.payment_method_datum`, `PaymentIntent.update().$params.payment_method_option`, `PaymentMethod.create().$params`, `PaymentMethodConfiguration.create().$params`, `PaymentMethodConfiguration.update().$params`, `PaymentMethodConfiguration`, `PaymentMethod`, `PaymentRecord.payment_method_details`, `SetupAttempt.payment_method_details`, `SetupIntent.confirm().$params.payment_method_datum`, `SetupIntent.confirm().$params.payment_method_option`, `SetupIntent.create().$params.payment_method_datum`, `SetupIntent.create().$params.payment_method_option`, `SetupIntent.payment_method_options`, `SetupIntent.update().$params.payment_method_datum`, and `SetupIntent.update().$params.payment_method_option`
+  * Add support for new value `tempo` on enums `Charge.payment_method_details.crypto.network`, `PaymentAttemptRecord.payment_method_details.crypto.network`, and `PaymentRecord.payment_method_details.crypto.network`
+  * Add support for `integration_identifier` on `Checkout.Session` and `Checkout\Session.create().$params`
+  * Add support for `crypto` on `Checkout\Session.create().$params.payment_method_option`
+  * Add support for `pending_invoice_item_interval` on `Checkout\Session.create().$params.subscription_datum`
+  * Add support for new values `elements`, `embedded_page`, `form`, and `hosted_page` on enum `Checkout.Session.ui_mode`
+  * Add support for new value `marine_carbon_removal` on enum `Climate.Supplier.removal_pathway`
+  * Add support for new value `upi` on enums `ConfirmationToken.payment_method_preview.type` and `PaymentMethod.type`
+  * Add support for `metadata` on `CreditNote.create().$params.line`, `CreditNote.preview().$params.line`, `CreditNote.preview_lines().$params.line`, and `CreditNoteLineItem`
+  * Add support for `quantity_decimal` on `Invoice.add_lines().$params.line`, `Invoice.create_preview().$params.invoice_item`, `Invoice.update_lines().$params.line`, `InvoiceItem.create().$params`, `InvoiceItem.update().$params`, `InvoiceItem`, `InvoiceLineItem.update().$params`, and `InvoiceLineItem`
+  * ⚠️ Add support for `level` on `Issuing\Authorization.create().$params.risk_assessment.card_testing_risk` and `Issuing\Authorization.create().$params.risk_assessment.merchant_dispute_risk`
+  * ⚠️ Remove support for `risk_level` on `Issuing\Authorization.create().$params.risk_assessment.card_testing_risk` and `Issuing\Authorization.create().$params.risk_assessment.merchant_dispute_risk`
+  * Add support for `lifecycle_controls` on `Issuing.Card` and `Issuing\Card.create().$params`
+  * ⚠️ Change type of `Issuing.Token.network_data.visa.card_reference_id` from `string` to `nullable(string)`
+  * ⚠️ Change type of `PaymentAttemptRecord.payment_method_details.card.brand` and `PaymentRecord.payment_method_details.card.brand` from `enum` to `nullable(enum)`
+  * ⚠️ Change type of `PaymentAttemptRecord.payment_method_details.card.exp_month` and `PaymentRecord.payment_method_details.card.exp_month` from `longInteger` to `nullable(longInteger)`
+  * ⚠️ Change type of `PaymentAttemptRecord.payment_method_details.card.exp_year` and `PaymentRecord.payment_method_details.card.exp_year` from `longInteger` to `nullable(longInteger)`
+  * ⚠️ Change type of `PaymentAttemptRecord.payment_method_details.card.funding` and `PaymentRecord.payment_method_details.card.funding` from `enum('credit'|'debit'|'prepaid'|'unknown')` to `nullable(enum('credit'|'debit'|'prepaid'|'unknown'))`
+  * ⚠️ Change type of `PaymentAttemptRecord.payment_method_details.card.last4` and `PaymentRecord.payment_method_details.card.last4` from `string` to `nullable(string)`
+  * ⚠️ Change type of `PaymentAttemptRecord.payment_method_details.card.moto` and `PaymentRecord.payment_method_details.card.moto` from `boolean` to `nullable(boolean)`
+  * Add support for `cryptogram`, `electronic_commerce_indicator`, `exemption_indicator_applied`, and `exemption_indicator` on `PaymentAttemptRecord.payment_method_details.card.three_d_secure` and `PaymentRecord.payment_method_details.card.three_d_secure`
+  * Add support for new value `upi` on enums `PaymentIntent.excluded_payment_method_types` and `SetupIntent.excluded_payment_method_types`
+  * Add support for `upi_handle_redirect_or_display_qr_code` on `PaymentIntent.next_action` and `SetupIntent.next_action`
+  * Add support for new value `upi` on enum `PaymentLink.payment_method_types`
+  * Add support for `recommended_action` and `signals` on `Radar.PaymentEvaluation`
+  * ⚠️ Remove support for `insights` on `Radar.PaymentEvaluation`
+  * Add support for new value `crypto_fingerprint` on enum `Radar.ValueList.item_type`
+  * Add support for new value `canceled_by_retention_policy` on enum `Subscription.cancellation_details.reason`
+  * ⚠️ Change type of `V2.Core.EventDestination.events_from` from `enum('other_accounts'|'self')` to `string`
+  * Add support for error code `service_period_coupon_with_metered_tiered_item_unsupported` on `Invoice.last_finalization_error`, `PaymentIntent.last_payment_error`, `SetupAttempt.setup_error`, `SetupIntent.last_setup_error`, and `StripeError`
+
+## 19.4.1 - 2026-03-06
+* [#2024](https://github.com/stripe/stripe-php/pull/2024) Add Stripe-Request-Trigger header
+* [#2022](https://github.com/stripe/stripe-php/pull/2022) Add agent information to UserAgent
+
+## 19.4.0 - 2026-02-25
+This release changes the pinned API version to `2026-02-25.clover`.
+
+* [#2016](https://github.com/stripe/stripe-php/pull/2016) Update generated code
+  * Add support for new resources `Reserve.Hold`, `Reserve.Plan`, and `Reserve.Release`
+  * Add support for `location` and `reader` on `Charge.payment_method_details.card_present`, `Charge.payment_method_details.interac_present`, `ConfirmationToken.payment_method_preview.card.generated_from.payment_method_details.card_present`, `PaymentAttemptRecord.payment_method_details.card_present`, `PaymentAttemptRecord.payment_method_details.interac_present`, `PaymentMethod.card.generated_from.payment_method_details.card_present`, `PaymentRecord.payment_method_details.card_present`, and `PaymentRecord.payment_method_details.interac_present`
+  * Add support for new value `lk_vat` on enums `Checkout.Session.customer_details.tax_ids[].type`, `Invoice.customer_tax_ids[].type`, `Tax.Calculation.customer_details.tax_ids[].type`, `Tax.Transaction.customer_details.tax_ids[].type`, and `TaxId.type`
+  * Add support for new values `reserve.hold.created`, `reserve.hold.updated`, `reserve.plan.created`, `reserve.plan.disabled`, `reserve.plan.expired`, `reserve.plan.updated`, and `reserve.release.created` on enum `Event.type`
+  * Add support for new values `terminal_wifi_certificate` and `terminal_wifi_private_key` on enum `File.purpose`
+  * Add support for new value `pay_by_bank` on enums `Invoice.payment_settings.payment_method_types` and `Subscription.payment_settings.payment_method_types`
+  * Add support for `display_name` and `service_user_number` on `Mandate.payment_method_details.bacs_debit`
+  * Change type of `PaymentAttemptRecord.payment_method_details.boleto.tax_id` and `PaymentRecord.payment_method_details.boleto.tax_id` from `string` to `nullable(string)`
+  * Change type of `PaymentAttemptRecord.payment_method_details.us_bank_account.expected_debit_date` and `PaymentRecord.payment_method_details.us_bank_account.expected_debit_date` from `nullable(string)` to `string`
+  * Add support for `transaction_purpose` on `PaymentIntent.confirm().$params.payment_method_option.us_bank_account`, `PaymentIntent.create().$params.payment_method_option.us_bank_account`, `PaymentIntent.payment_method_options.us_bank_account`, and `PaymentIntent.update().$params.payment_method_option.us_bank_account`
+  * Add support for `optional_items` on `PaymentLink.update().$params`
+  * Remove support for unused `card_issuer_decline` on `Radar.PaymentEvaluation.insights`
+  * Add support for `payment_behavior` on `SubscriptionItem.delete().$params`
+  * Add support for `lk` on `Tax.Registration.country_options` and `Tax\Registration.create().$params.country_option`
+  * Add support for `cellular` and `stripe_s710` on `Terminal.Configuration`, `Terminal\Configuration.create().$params`, and `Terminal\Configuration.update().$params`
+  * Add support for new values `simulated_stripe_s710` and `stripe_s710` on enum `Terminal.Reader.device_type`
+  * Add support for snapshot events `RESERVE_HOLD_CREATED` and `RESERVE_HOLD_UPDATED` with resource `Reserve.Hold`
+  * Add support for snapshot events `RESERVE_PLAN_CREATED`, `RESERVE_PLAN_DISABLED`, `RESERVE_PLAN_EXPIRED`, and `RESERVE_PLAN_UPDATED` with resource `Reserve.Plan`
+  * Add support for snapshot event `RESERVE_RELEASE_CREATED` with resource `Reserve.Release`
+  * Add support for error codes `storer_capability_missing` and `storer_capability_not_active` on `Invoice.last_finalization_error`, `PaymentIntent.last_payment_error`, `SetupAttempt.setup_error`, `SetupIntent.last_setup_error`, and `StripeError`
+
+## 19.3.0 - 2026-01-28
+This release changes the pinned API version to `2026-01-28.clover`.
+
+* [#2001](https://github.com/stripe/stripe-php/pull/2001) Update generated code
+  * Add support for new resource `Radar.PaymentEvaluation`
+  * Add support for `create` method on resource `Radar.PaymentEvaluation`
+  * Add support for `adjustable_quantity` on `LineItem`
+  * Add support for new value `risk_reserved` on enum `BalanceTransaction.balance_type`
+  * Add support for new values `reserve_hold` and `reserve_release` on enum `BalanceTransaction.type`
+  * Add support for new values `2.3.0` and `2.3.1` on enums `Charge.payment_method_details.card.three_d_secure.version` and `SetupAttempt.payment_method_details.card.three_d_secure.version`
+  * Add support for new value `adyen` on enums `Charge.payment_method_details.ideal.bank`, `ConfirmationToken.payment_method_preview.ideal.bank`, `PaymentAttemptRecord.payment_method_details.ideal.bank`, `PaymentMethod.ideal.bank`, `PaymentRecord.payment_method_details.ideal.bank`, and `SetupAttempt.payment_method_details.ideal.bank`
+  * Add support for new value `ADYBNL2A` on enums `Charge.payment_method_details.ideal.bic`, `ConfirmationToken.payment_method_preview.ideal.bic`, `PaymentAttemptRecord.payment_method_details.ideal.bic`, `PaymentMethod.ideal.bic`, `PaymentRecord.payment_method_details.ideal.bic`, and `SetupAttempt.payment_method_details.ideal.bic`
+  * Add support for new value `pl_nip` on enums `Checkout.Session.customer_details.tax_ids[].type`, `Invoice.customer_tax_ids[].type`, `Tax.Calculation.customer_details.tax_ids[].type`, `Tax.Transaction.customer_details.tax_ids[].type`, and `TaxId.type`
+  * Change `Invoice.payment_settings.payment_method_options.payto` and `Subscription.payment_settings.payment_method_options.payto` to be required
+  * Add support for `enforce_arithmetic_validation` on `PaymentIntent.capture().$params.amount_detail`, `PaymentIntent.confirm().$params.amount_detail`, `PaymentIntent.create().$params.amount_detail`, `PaymentIntent.increment_authorization().$params.amount_detail`, and `PaymentIntent.update().$params.amount_detail`
+  * Add support for `error` on `PaymentIntent.amount_details`
+  * Remove support for `bgn` on `Terminal.Configuration.tipping`, `Terminal\Configuration.create().$params.tipping`, and `Terminal\Configuration.update().$params.tipping`
+  * Add support for `topup` on `Treasury.ReceivedDebit.linked_flows`
+  * Add support for `contact_phone` on `V2.Core.Account`, `V2\Core\Account.create().$params`, `V2\Core\Account.update().$params`, and `V2\Core\AccountToken.create().$params`
+  * Add support for `registration_date` on `V2.Core.Account.identity.business_details`, `V2\Core\Account.create().$params.identity.business_detail`, `V2\Core\Account.update().$params.identity.business_detail`, and `V2\Core\AccountToken.create().$params.identity.business_detail`
+  * Add support for new value `gb_vat` on enum `V2.Core.Account.identity.business_details.id_numbers[].type`
+  * Add support for error code `request_blocked` on `Invoice.last_finalization_error`, `PaymentIntent.last_payment_error`, `SetupAttempt.setup_error`, `SetupIntent.last_setup_error`, and `StripeError`
+* [#2000](https://github.com/stripe/stripe-php/pull/2000) Add guidance for undocumented API parameters
+
+## 19.2.0 - 2026-01-16
+* [#1997](https://github.com/stripe/stripe-php/pull/1997) Update generated code
+  * Add support for event notifications `V2CoreAccountClosedEvent`, `V2CoreAccountCreatedEvent`, `V2CoreAccountIncludingConfigurationCustomerCapabilityStatusUpdatedEvent`, `V2CoreAccountIncludingConfigurationCustomerUpdatedEvent`, `V2CoreAccountIncludingConfigurationMerchantCapabilityStatusUpdatedEvent`, `V2CoreAccountIncludingConfigurationMerchantUpdatedEvent`, `V2CoreAccountIncludingConfigurationRecipientCapabilityStatusUpdatedEvent`, `V2CoreAccountIncludingConfigurationRecipientUpdatedEvent`, `V2CoreAccountIncludingDefaultsUpdatedEvent`, `V2CoreAccountIncludingFutureRequirementsUpdatedEvent`, `V2CoreAccountIncludingIdentityUpdatedEvent`, `V2CoreAccountIncludingRequirementsUpdatedEvent`, and `V2CoreAccountUpdatedEvent` with related object `V2.Core.Account`
+  * Add support for event notification `V2CoreAccountLinkReturnedEvent`
+  * Add support for event notifications `V2CoreAccountPersonCreatedEvent`, `V2CoreAccountPersonDeletedEvent`, and `V2CoreAccountPersonUpdatedEvent` with related object `V2.Core.AccountPerson`
+* [#1984](https://github.com/stripe/stripe-php/pull/1984) Improve webhook signature validation doc block
+
+## 19.1.0 - 2025-12-16
+This release changes the pinned API version to `2025-12-15.clover`.
+
+* [#1975](https://github.com/stripe/stripe-php/pull/1975) Update generated code
+  * Add support for new resources `V2.Core.AccountLink`, `V2.Core.AccountPersonToken`, `V2.Core.AccountPerson`, `V2.Core.AccountToken`, and `V2.Core.Account`
+  * Add support for `create` and `retrieve` methods on resources `V2.Core.AccountPersonToken` and `V2.Core.AccountToken`
+  * Add support for `create` method on resource `V2.Core.AccountLink`
+  * Add support for `all`, `close`, `create`, `retrieve`, and `update` methods on resource `V2.Core.Account`
+  * Add support for `all`, `create`, `delete`, `retrieve`, and `update` methods on resource `V2.Core.AccountPerson`
+  * Add support for `customer_account` on `Billing.CreditBalanceSummary`, `Billing.CreditGrant`, `BillingPortal.Session`, `BillingPortal\Session.create().$params`, `Billing\CreditBalanceSummary.retrieve().$params`, `Billing\CreditBalanceTransaction.all().$params`, `Billing\CreditGrant.all().$params`, `Billing\CreditGrant.create().$params`, `CashBalance`, `Checkout.Session`, `Checkout\Session.all().$params`, `Checkout\Session.create().$params`, `ConfirmationToken.payment_method_preview`, `CreditNote.all().$params`, `CreditNote`, `CustomerBalanceTransaction`, `CustomerCashBalanceTransaction`, `CustomerSession.create().$params`, `CustomerSession`, `Customer`, `Discount`, `FinancialConnections.Account.account_holder`, `FinancialConnections.Session.account_holder`, `FinancialConnections\Account.all().$params.account_holder`, `FinancialConnections\Session.create().$params.account_holder`, `Invoice.all().$params`, `Invoice.create().$params`, `Invoice.create_preview().$params`, `InvoiceItem.all().$params`, `InvoiceItem.create().$params`, `InvoiceItem`, `Invoice`, `PaymentIntent.all().$params`, `PaymentIntent.create().$params`, `PaymentIntent.update().$params`, `PaymentIntent`, `PaymentMethod.all().$params`, `PaymentMethod.attach().$params`, `PaymentMethod`, `PromotionCode.all().$params`, `PromotionCode.create().$params`, `PromotionCode`, `Quote.all().$params`, `Quote.create().$params`, `Quote.update().$params`, `Quote`, `SetupAttempt`, `SetupIntent.all().$params`, `SetupIntent.create().$params`, `SetupIntent.update().$params`, `SetupIntent`, `Subscription.all().$params`, `Subscription.create().$params`, `SubscriptionSchedule.all().$params`, `SubscriptionSchedule.create().$params`, `SubscriptionSchedule`, `Subscription`, `TaxId.all().$params.owner`, `TaxId.create().$params.owner`, `TaxId.owner`, and `TaxId`
+  * Add support for `metadata` on `Checkout\Session.create().$params.line_item` and `LineItem`
+  * Add support for `payto_payments` on `Account.capabilities`, `Account.create().$params.capability`, and `Account.update().$params.capability`
+  * Add support for `signer` on `Account.create().$params.document.proof_of_registration`, `Account.create().$params.document.proof_of_ultimate_beneficial_ownership`, `Account.update().$params.document.proof_of_registration`, and `Account.update().$params.document.proof_of_ultimate_beneficial_ownership`
+  * Change `BillingPortal\Session.create().$params.customer`, `Billing\CreditBalanceSummary.retrieve().$params.customer`, `Billing\CreditBalanceTransaction.all().$params.customer`, `Billing\CreditGrant.create().$params.customer`, `CustomerSession.create().$params.customer`, `InvoiceItem.create().$params.customer`, `PaymentMethod.attach().$params.customer`, and `Subscription.create().$params.customer` to be optional
+  * Add support for `billing_cycle_anchor` on `BillingPortal.Configuration.features.subscription_update`, `BillingPortal\Configuration.create().$params.feature.subscription_update`, and `BillingPortal\Configuration.update().$params.feature.subscription_update`
+  * Add support for `payto` on `Charge.payment_method_details`, `Checkout.Session.payment_method_options`, `Checkout\Session.create().$params.payment_method_option`, `ConfirmationToken.create().$params.payment_method_datum`, `ConfirmationToken.payment_method_preview`, `Invoice.create().$params.payment_setting.payment_method_option`, `Invoice.payment_settings.payment_method_options`, `Invoice.update().$params.payment_setting.payment_method_option`, `Mandate.payment_method_details`, `PaymentAttemptRecord.payment_method_details`, `PaymentIntent.confirm().$params.payment_method_datum`, `PaymentIntent.confirm().$params.payment_method_option`, `PaymentIntent.create().$params.payment_method_datum`, `PaymentIntent.create().$params.payment_method_option`, `PaymentIntent.payment_method_options`, `PaymentIntent.update().$params.payment_method_datum`, `PaymentIntent.update().$params.payment_method_option`, `PaymentMethod.create().$params`, `PaymentMethod.update().$params`, `PaymentMethodConfiguration.create().$params`, `PaymentMethodConfiguration.update().$params`, `PaymentMethodConfiguration`, `PaymentMethod`, `PaymentRecord.payment_method_details`, `SetupAttempt.payment_method_details`, `SetupIntent.confirm().$params.payment_method_datum`, `SetupIntent.confirm().$params.payment_method_option`, `SetupIntent.create().$params.payment_method_datum`, `SetupIntent.create().$params.payment_method_option`, `SetupIntent.payment_method_options`, `SetupIntent.update().$params.payment_method_datum`, `SetupIntent.update().$params.payment_method_option`, `Subscription.create().$params.payment_setting.payment_method_option`, `Subscription.payment_settings.payment_method_options`, and `Subscription.update().$params.payment_setting.payment_method_option`
+  * Add support for `expected_debit_date` on `Charge.payment_method_details.acss_debit`, `Charge.payment_method_details.au_becs_debit`, `Charge.payment_method_details.bacs_debit`, `Charge.payment_method_details.nz_bank_account`, `Charge.payment_method_details.sepa_debit`, `Charge.payment_method_details.us_bank_account`, `PaymentAttemptRecord.payment_method_details.acss_debit`, `PaymentAttemptRecord.payment_method_details.au_becs_debit`, `PaymentAttemptRecord.payment_method_details.bacs_debit`, `PaymentAttemptRecord.payment_method_details.nz_bank_account`, `PaymentAttemptRecord.payment_method_details.sepa_debit`, `PaymentAttemptRecord.payment_method_details.us_bank_account`, `PaymentRecord.payment_method_details.acss_debit`, `PaymentRecord.payment_method_details.au_becs_debit`, `PaymentRecord.payment_method_details.bacs_debit`, `PaymentRecord.payment_method_details.nz_bank_account`, `PaymentRecord.payment_method_details.sepa_debit`, and `PaymentRecord.payment_method_details.us_bank_account`
+  * Add support for new value `mollie` on enums `Charge.payment_method_details.ideal.bank`, `ConfirmationToken.payment_method_preview.ideal.bank`, `PaymentAttemptRecord.payment_method_details.ideal.bank`, `PaymentMethod.ideal.bank`, `PaymentRecord.payment_method_details.ideal.bank`, and `SetupAttempt.payment_method_details.ideal.bank`
+  * Add support for new value `MLLENL2A` on enums `Charge.payment_method_details.ideal.bic`, `ConfirmationToken.payment_method_preview.ideal.bic`, `PaymentAttemptRecord.payment_method_details.ideal.bic`, `PaymentMethod.ideal.bic`, `PaymentRecord.payment_method_details.ideal.bic`, and `SetupAttempt.payment_method_details.ideal.bic`
+  * Add support for `line_items` on `Checkout\Session.update().$params`
+  * Add support for new value `payto` on enums `ConfirmationToken.payment_method_preview.type` and `PaymentMethod.type`
+  * Add support for `invoice` on `CustomerBalanceTransaction.all().$params`
+  * Add support for `related_customer_account` on `Identity.VerificationSession`, `Identity\VerificationSession.all().$params`, and `Identity\VerificationSession.create().$params`
+  * Change type of `InvoiceItem.pricing.price_details.price` and `InvoiceLineItem.pricing.price_details.price` from `string` to `expandable($Price)`
+  * Add support for new value `payto` on enums `Invoice.payment_settings.payment_method_types` and `Subscription.payment_settings.payment_method_types`
+  * Add support for `subtotal` on `InvoiceLineItem`
+  * Add support for `authorization_code`, `description`, `iin`, `installments`, `issuer`, `network_advice_code`, `network_decline_code`, and `stored_credential_usage` on `PaymentAttemptRecord.payment_method_details.card` and `PaymentRecord.payment_method_details.card`
+  * Add support for new value `payto` on enums `PaymentIntent.excluded_payment_method_types` and `SetupIntent.excluded_payment_method_types`
+  * Change `PaymentIntent.transfer_data` to be optional
+  * Add support for new value `payto` on enum `PaymentLink.payment_method_types`
+  * Add support for `allow_redisplay` on `PaymentMethod.all().$params`
+  * Add support for `reported_by` on `PaymentRecord`
+  * Change `Product.tax_code` to be optional
+  * Add support for `changes` on `V2.Core.Event`
+  * Add support for error code `account_token_required_for_v2_account` on `Invoice.last_finalization_error`, `PaymentIntent.last_payment_error`, `SetupAttempt.setup_error`, `SetupIntent.last_setup_error`, and `StripeError`
+* [#1976](https://github.com/stripe/stripe-php/pull/1976) Updated bundled CA certs
+* [#1973](https://github.com/stripe/stripe-php/pull/1973) Remove deprecated usage of curl_close() for PHP versions > 8.0
+
 ## 19.0.0 - 2025-11-18
 This release changes the pinned API version to `2025-11-17.clover`.
 
