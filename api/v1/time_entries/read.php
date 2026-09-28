@@ -42,6 +42,10 @@ if ($filter_date_to) {
     $where .= " AND tr.ticket_reply_created_at <= '$date_to_escaped' ";
 }
 
+$reply_billable_column = mysqli_num_rows(mysqli_query($mysqli, "SHOW COLUMNS FROM ticket_replies LIKE 'ticket_reply_billable'")) > 0
+    ? "tr.ticket_reply_billable"
+    : "1";
+
 $sql_query = "
     SELECT
         tr.ticket_reply_id            AS time_entry_id,
@@ -61,6 +65,7 @@ $sql_query = "
         t.ticket_priority,
         t.ticket_status,
         t.ticket_billable             AS billable,
+        $reply_billable_column        AS ticket_reply_billable,
         t.ticket_client_id            AS client_id,
         c.client_name,
         c.client_type,
